@@ -87,6 +87,26 @@ npx playwright show-report
 
 ---
 
+## Environments (dev / qa)
+
+This project uses **dotenv** and `TEST_ENV` to switch environments:
+
+- `.env.dev` – settings for the **dev** environment.
+- `.env.qa` – settings for the **qa** environment.
+- `playwright.config.js` reads `TEST_ENV` and loads `.env.<TEST_ENV>`, using `BASE_URL` as the `baseURL` for all tests.
+
+From the project root, you can run:
+
+```bash
+# Run tests against dev environment
+npm run test:dev
+
+# Run tests against qa environment
+npm run test:qa
+```
+
+---
+
 ## Writing New Tests
 
 Create a new file under `tests/`, for example `tests/login.spec.ts`:

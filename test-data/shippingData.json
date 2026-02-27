@@ -1,0 +1,37 @@
+[
+  {
+    "alias": "validCustomer",
+    "phoneNumber": "+44 7700 900001",
+    "street": "10 Downing Street",
+    "city": "London",
+    "country": "United Kingdom"
+  },
+  {
+    "alias": "noPhoneCustomer",
+    "phoneNumber": "",
+    "street": "1 Macquarie Street",
+    "city": "Sydney",
+    "country": "Australia"
+  },
+  {
+    "alias": "noAddressCustomer",
+    "phoneNumber": "+1 415 555 1234",
+    "street": "",
+    "city": "Sydney",
+    "country": "Australia"
+  },
+  {
+    "alias": "noCityCustomer",
+    "phoneNumber": "+1 415 555 1234",
+    "street": "1 Market Street",
+    "city": "",
+    "country": "Australia"
+  },
+  {
+    "alias": "noCountryCustomer",
+    "phoneNumber": "+1 415 555 1234",
+    "street": "1 Market Street",
+    "city": "Sydney",
+    "country": ""
+  }
+]

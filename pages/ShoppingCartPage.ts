@@ -1,5 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 import { BasePage } from './BasePage';
+import shopItems from '../test-data/shopItems.json';
 
 export class ShoppingCartPage extends BasePage {
   readonly cartTotalTitle: Locator;
@@ -48,12 +49,19 @@ export class ShoppingCartPage extends BasePage {
   }
 
   /**
-   * Updates the quantity for a specific cart item, matched by its title.
+   * Updates the quantity for a specific cart item, looked up by alias
+   * from `test-data/shopItems.json`.
    */
-  async updateItemQuantity(itemTitle: string, quantity: number): Promise<void> {
+  async updateItemQuantity(alias: string, quantity: number): Promise<void> {
+    const item = shopItems.find((entry) => entry.alias === alias);
+
+    if (!item) {
+      throw new Error(`No shop item found for alias: ${alias}`);
+    }
+
     const cartRow = this.page
       .locator('.cart-items .cart-row')
-      .filter({ hasText: itemTitle });
+      .filter({ hasText: item.title });
 
     await cartRow.locator('input').fill(quantity.toString());
   }

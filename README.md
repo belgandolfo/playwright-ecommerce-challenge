@@ -55,28 +55,43 @@ You can add more spec files under `tests/` to grow your automation suite.
 
 ## Running Tests
 
-Run all Playwright tests:
+You can choose **environment** (dev / qa) and **login user** (admin / nonAdmin) when running tests. Use the npm scripts below, or set `TEST_ENV` and `TEST_USER` yourself.
+
+### By environment and user
+
+| Goal | Command |
+|------|---------|
+| Dev, default user (admin) | `npm run test:dev` |
+| QA, default user (admin) | `npm run test:qa` |
+| Dev + admin user | `npm run test:dev:admin` |
+| Dev + nonAdmin user | `npm run test:dev:nonAdmin` |
+| QA + admin user | `npm run test:qa:admin` |
+| QA + nonAdmin user | `npm run test:qa:nonAdmin` |
+
+With custom env/user (e.g. QA + nonAdmin):
 
 ```bash
-npx playwright test
+TEST_ENV=qa TEST_USER=nonAdmin npx playwright test
 ```
 
-Run tests in headed mode (see the browser window):
+### Other run options
+
+Run tests in headed mode (see the browser):
 
 ```bash
-npx playwright test --headed
+npm run test:dev -- --headed
 ```
 
 Run a specific test file:
 
 ```bash
-npx playwright test tests/example.spec.ts
+npm run test:qa -- tests/login.spec.ts
 ```
 
 Run a specific test by title:
 
 ```bash
-npx playwright test -g "has title"
+npm run test:dev -- -g "has title"
 ```
 
 ---
@@ -123,39 +138,15 @@ Use the video to watch the test run up to the failure; use the trace to replay a
 
 ## Environments (dev / qa)
 
-This project uses **dotenv** and `TEST_ENV` to switch environments:
+This project uses **dotenv** and **`TEST_ENV`** to switch environments:
 
 - `.env.dev` – settings for the **dev** environment.
 - `.env.qa` – settings for the **qa** environment.
 - `playwright.config.js` reads `TEST_ENV` and loads `.env.<TEST_ENV>`, using `BASE_URL` as the `baseURL` for all tests.
 
-From the project root, you can run:
+The login user is controlled by **`TEST_USER`** (default: `admin`). The auto fixture `loggedInPageWithLogout` uses this to log in as admin or nonAdmin. Valid values: `admin`, `nonAdmin` (from `test-data/users.ts`).
 
-```bash
-# Run tests against dev environment
-npm run test:dev
-
-# Run tests against qa environment
-npm run test:qa
-```
-
-**Choosing the login user**
-
-The auto fixture `loggedInPageWithLogout` uses the user selected by **`TEST_USER`** (default: `admin`). You can run with a specific user via npm scripts:
-
-```bash
-# Dev + admin user (default)
-npm run test:dev:admin
-
-# Dev + non-admin user
-npm run test:dev:nonAdmin
-
-# Same for QA
-npm run test:qa:admin
-npm run test:qa:nonAdmin
-```
-
-Or set the env yourself: `TEST_USER=nonAdmin npm run test:dev`. Valid values: `admin`, `nonAdmin` (from `test-data/users.ts`).
+For all run commands (by env and user), see [Running Tests](#running-tests).
 
 ---
 

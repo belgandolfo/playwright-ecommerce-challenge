@@ -1,11 +1,6 @@
 # Generated from ci-constants.json. Regenerate: npm run generate:circleci
 version: 2.1
 
-x-workspace-persist: &persist_blob
-  root: ~/project
-  when: always
-  continue_on_fail: true
-
 jobs:
   test:
     parallelism: 2
@@ -37,51 +32,33 @@ jobs:
       - store_test_results:
           path: ~/project/test-results
       - run:
-          name: Prepare blob report for merge (unique path per node)
+          name: Prepare test-results per node (for artifacts)
           command: |
-            for i in 0 1; do mkdir -p blob-reports-$i; done
-            cp -r blob-report/. blob-reports-${CIRCLE_NODE_INDEX}/ 2>/dev/null || true
-      - persist_to_workspace:
-          <<: *persist_blob
-          paths:
-            - blob-reports-0
-      - persist_to_workspace:
-          <<: *persist_blob
-          paths:
-            - blob-reports-1
-
-  merge-reports:
-    docker:
-      - image: mcr.microsoft.com/playwright:v1.58.2-jammy
-    resource_class: medium
-    working_directory: ~/project
-    steps:
-      - checkout
-      - attach_workspace:
-          at: ~/project
-      - restore_cache:
-          keys:
-            - npm-{{ checksum "package-lock.json" }}
-      - run:
-          name: Install dependencies
-          command: npm ci
-      - run:
-          name: Gather blob reports and merge into one HTML report
-          command: |
-            mkdir -p all-blob-reports
-            for d in blob-reports-*; do
-              [ -d "$d" ] && cp -r "$d"/* all-blob-reports/ 2>/dev/null || true
-            done
-            npx playwright merge-reports --reporter html ./all-blob-reports
+            for i in 0 1; do mkdir -p test-results-$i; done
+            cp -r test-results/. test-results-${CIRCLE_NODE_INDEX}/ 2>/dev/null || true
       - store_artifacts:
-          path: ~/project/playwright-report
-          destination: playwright-report
+          when: always
+          path: ~/project/playwright-report-0
+          destination: playwright-report-0
+          continue_on_fail: true
+      - store_artifacts:
+          when: always
+          path: ~/project/test-results-0
+          destination: test-results-0
+          continue_on_fail: true
+      - store_artifacts:
+          when: always
+          path: ~/project/playwright-report-1
+          destination: playwright-report-1
+          continue_on_fail: true
+      - store_artifacts:
+          when: always
+          path: ~/project/test-results-1
+          destination: test-results-1
+          continue_on_fail: true
 
 workflows:
   test-on-push-and-pr:
     jobs:
       - test
-      - merge-reports:
-          requires:
-            - test
 

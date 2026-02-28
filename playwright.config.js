@@ -5,13 +5,14 @@ import * as dotenv from 'dotenv';
 const env = process.env.TEST_ENV ?? 'dev';
 dotenv.config({ path: `.env.${env}` });
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// import dotenv from 'dotenv';
-// import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
+/** In CI with parallelism (e.g. CircleCI), use a per-node dir so each node has unique output. */
+function getCiReportDir(baseName) {
+  const nodeIndex = process.env.CIRCLE_NODE_INDEX;
+  if (nodeIndex !== undefined && nodeIndex !== '') {
+    return `${baseName}-${nodeIndex}`;
+  }
+  return baseName;
+}
 
 /**
  * @see https://playwright.dev/docs/test-configuration
@@ -27,10 +28,15 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  /* In CI we use blob reporter so a separate merge job can combine all shards into one HTML report. */
   reporter: process.env.CI
     ? [
-        ['blob'],
+        [
+          'html',
+          {
+            open: 'never',
+            outputFolder: getCiReportDir('playwright-report'),
+          },
+        ],
         [
           'junit',
           {

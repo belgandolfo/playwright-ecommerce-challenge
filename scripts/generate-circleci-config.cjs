@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 /**
  * Generates .circleci/config.yml from ci-constants.json.
- * Single source of truth for parallelism; persist steps generated from circleParallelism.
- * Run: npm run generate:circleci
+ * Single source of truth: circleParallelism (2, 3, 4, …). All steps (parallelism,
+ * prepare loop, store_artifacts) are generated from that value.
+ * To change parallel executors: edit ci-constants.json, then run npm run generate:circleci.
  */
 const fs = require('fs');
 const path = require('path');
@@ -13,27 +14,26 @@ const outPath = path.join(root, '.circleci', 'config.yml');
 
 const { circleParallelism } = JSON.parse(fs.readFileSync(constantsPath, 'utf8'));
 
-const blobReportIndices = Array.from(
-  { length: circleParallelism },
-  (_, i) => i
-).join(' ');
+const indices = Array.from({ length: circleParallelism }, (_, i) => i);
+const indicesStr = indices.join(' ');
 
-const persistSteps = Array.from(
-  { length: circleParallelism },
-  (_, i) =>
-    `      - persist_to_workspace:
-          <<: *persist_blob
-          paths:
-            - blob-reports-${i}`
-).join('\n');
+const storeArtifactSteps = indices
+  .flatMap((i) => [
+    `      - store_artifacts:
+          when: always
+          path: ~/project/playwright-report-${i}
+          destination: playwright-report-${i}
+          continue_on_fail: true`,
+    `      - store_artifacts:
+          when: always
+          path: ~/project/test-results-${i}
+          destination: test-results-${i}
+          continue_on_fail: true`,
+  ])
+  .join('\n');
 
 const config = `# Generated from ci-constants.json. Regenerate: npm run generate:circleci
 version: 2.1
-
-x-workspace-persist: &persist_blob
-  root: ~/project
-  when: always
-  continue_on_fail: true
 
 jobs:
   test:
@@ -66,46 +66,16 @@ jobs:
       - store_test_results:
           path: ~/project/test-results
       - run:
-          name: Prepare blob report for merge (unique path per node)
+          name: Prepare test-results per node (for artifacts)
           command: |
-            for i in ${blobReportIndices}; do mkdir -p blob-reports-\$i; done
-            cp -r blob-report/. blob-reports-\${CIRCLE_NODE_INDEX}/ 2>/dev/null || true
-${persistSteps}
-
-  merge-reports:
-    docker:
-      - image: mcr.microsoft.com/playwright:v1.58.2-jammy
-    resource_class: medium
-    working_directory: ~/project
-    steps:
-      - checkout
-      - attach_workspace:
-          at: ~/project
-      - restore_cache:
-          keys:
-            - npm-{{ checksum "package-lock.json" }}
-      - run:
-          name: Install dependencies
-          command: npm ci
-      - run:
-          name: Gather blob reports and merge into one HTML report
-          command: |
-            mkdir -p all-blob-reports
-            for d in blob-reports-*; do
-              [ -d "$d" ] && [ -n "$(ls -A "$d" 2>/dev/null)" ] && cp -r "$d"/* all-blob-reports/
-            done
-            npx playwright merge-reports --reporter html ./all-blob-reports
-      - store_artifacts:
-          path: ~/project/playwright-report
-          destination: playwright-report
+            for i in ${indicesStr}; do mkdir -p test-results-\$i; done
+            cp -r test-results/. test-results-\${CIRCLE_NODE_INDEX}/ 2>/dev/null || true
+${storeArtifactSteps}
 
 workflows:
   test-on-push-and-pr:
     jobs:
       - test
-      - merge-reports:
-          requires:
-            - test
 `;
 
 fs.mkdirSync(path.dirname(outPath), { recursive: true });

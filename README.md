@@ -159,7 +159,7 @@ For all run commands (by env and user), see [Running Tests](#running-tests).
 **Where to find results:**
 
 - **Tests** tab – Pass/fail summary (from JUnit results).
-- **Artifacts** – A single **merged HTML report** (`playwright-report`) from the `merge-reports` job, combining all parallel shards. Download it to inspect failures across the full run.
+- **Artifacts** – Per-node **HTML report** (`playwright-report-0`, `playwright-report-1`, …) and **test-results** (`test-results-0`, `test-results-1`, …) with JUnit and traces. Download from the job’s Artifacts tab to inspect failures.
 
 ---
 

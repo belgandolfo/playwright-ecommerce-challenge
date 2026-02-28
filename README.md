@@ -79,12 +79,45 @@ Run a specific test by title:
 npx playwright test -g "has title"
 ```
 
-Generate and open the HTML report:
+---
+
+## Test reports and artifacts
+
+### How to generate the report
+
+The HTML report is generated automatically whenever you run tests (the default reporter is `html`). No extra flags are needed:
 
 ```bash
-npx playwright test --reporter=html
-npx playwright show-report
+npx playwright test
 ```
+
+To generate the report without opening it (e.g. in CI), run the same command; the report is written to `playwright-report/`.
+
+### How to view the HTML report
+
+- **Locally:** The report is configured to **open in the browser after every run** when not in CI. If it doesn’t open, or you want to open it again later:
+
+  ```bash
+  npx playwright show-report
+  ```
+
+  This serves the latest report from `playwright-report/` and opens it in your browser.
+
+- **In CI:** The report does not auto-open (there is no display). The report is still generated in `playwright-report/`. In GitHub Actions (or similar), publish that folder as an artifact so you can download and open the report, or use `npx playwright show-report` locally on the downloaded folder.
+
+### Where artifacts (videos / traces) live
+
+- **HTML report:** `playwright-report/` (index and assets for the report UI).
+- **Test artifacts:** `test-results/` — each test run creates a folder per test (e.g. `test-results/login-spec-ts-Login-shows-error-.../`). Inside you’ll find:
+  - **Videos** (kept only when a test fails; `video: 'retain-on-failure'` in config).
+  - **Traces** (when a test is retried; `trace: 'on-first-retry'` in config).
+
+### How to interpret failure artifacts
+
+- **Video:** Recorded for every test; only retained when the test fails. In the HTML report, open the failed test and use the **Video** attachment to watch the full run and see what happened before the failure.
+- **Trace:** Recorded on the first retry (when enabled). In the report, click **Trace** for the failed test, or run `npx playwright show-trace test-results/.../trace.zip`, to replay the test step-by-step and inspect the DOM, console, and network.
+
+Use the video to watch the test run up to the failure; use the trace to replay and inspect the exact step that failed.
 
 ---
 

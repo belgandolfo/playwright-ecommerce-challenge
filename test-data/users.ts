@@ -1,5 +1,25 @@
 import 'dotenv/config';
 
+const requiredEnvVars = [
+  'ADMIN_EMAIL',
+  'ADMIN_PASSWORD',
+  'TEST_EMAIL',
+  'TEST_PASSWORD',
+] as const;
+
+function ensureEnvVars(): void {
+  if (!process.env.CI) return;
+  const missing = requiredEnvVars.filter((key) => !process.env[key]);
+  if (missing.length > 0) {
+    throw new Error(
+      `Missing required env vars in CI: ${missing.join(', ')}. ` +
+        'Set them in CircleCI Project Settings → Environment Variables (see README).',
+    );
+  }
+}
+
+ensureEnvVars();
+
 export const adminUser = {
   username: process.env.ADMIN_EMAIL!,
   password: process.env.ADMIN_PASSWORD!,

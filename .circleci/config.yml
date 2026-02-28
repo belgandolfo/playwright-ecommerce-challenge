@@ -1,0 +1,52 @@
+version: 2.1
+
+jobs:
+  test:
+    docker:
+      - image: mcr.microsoft.com/playwright:v1.58.2-jammy
+    working_directory: ~/project
+    environment:
+      CI: true
+      TEST_ENV: qa
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - npm-{{ checksum 'package-lock.json' }}
+
+      - run:
+          name: Install dependencies
+          command: npm ci
+
+      - save_cache:
+          key: npm-{{ checksum 'package-lock.json' }}
+          paths:
+            - node_modules
+
+      - run:
+          name: Install Playwright browsers
+          command: npx playwright install --with-deps
+
+      - run:
+          name: Run Playwright tests
+          command: npx playwright test
+          env:
+
+      - store_test_results:
+          path: ~/project/test-results
+
+      - store_artifacts:
+          when: always
+          path: ~/project/playwright-report
+          destination: playwright-report
+
+      - store_artifacts:
+          when: always
+          path: ~/project/test-results
+          destination: test-results
+
+workflows:
+  test-on-push-and-pr:
+    jobs:
+      - test

@@ -118,7 +118,7 @@ To generate the report without opening it (e.g. in CI), run the same command; th
 
   This serves the latest report from `playwright-report/` and opens it in your browser.
 
-- **In CI:** The report does not auto-open (there is no display). The report is still generated in `playwright-report/`. In GitHub Actions (or similar), publish that folder as an artifact so you can download and open the report, or use `npx playwright show-report` locally on the downloaded folder.
+- **In CI (e.g. CircleCI):** The report does not auto-open (there is no display). The report is still generated in `playwright-report/` and is stored as an artifact so you can download and open it, or run `npx playwright show-report` locally on the downloaded folder.
 
 ### Where artifacts (videos / traces) live
 
@@ -147,6 +147,17 @@ This project uses **dotenv** and **`TEST_ENV`** to switch environments:
 The login user is controlled by **`TEST_USER`** (default: `admin`). The auto fixture `loggedInPageWithLogout` uses this to log in as admin or nonAdmin. Valid values: `admin`, `nonAdmin` (from `test-data/users.ts`).
 
 For all run commands (by env and user), see [Running Tests](#running-tests).
+
+---
+
+## Continuous Integration (CircleCI)
+
+**When it runs:** On every push and when pull requests are opened or updated.
+
+**Where to find results:**
+
+- **Tests** tab – Pass/fail summary (from JUnit results).
+- **Artifacts** – `playwright-report` (HTML report) and `test-results` (videos, traces). Download from the job page to inspect failures.
 
 ---
 
@@ -230,17 +241,4 @@ npm run lint:fix
 # Format the codebase with Prettier
 npm run format
 ```
-
----
-
-## CI Integration
-
-There is a sample GitHub Actions workflow in `.github/workflows/playwright.yml` that:
-
-- Installs dependencies.
-- Installs Playwright browsers.
-- Runs `npx playwright test`.
-- Uploads the HTML report as an artifact.
-
-You can enable or customize this workflow for continuous integration in GitHub.
 

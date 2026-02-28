@@ -1,4 +1,3 @@
-# Generated from ci-constants.json. Regenerate: npm run generate:circleci
 version: 2.1
 
 jobs:
@@ -13,52 +12,43 @@ jobs:
       TEST_ENV: qa
     steps:
       - checkout
+
       - restore_cache:
           keys:
             - npm-{{ checksum "package-lock.json" }}
+
       - run:
           name: Install dependencies
           command: npm ci
+
       - save_cache:
           key: npm-{{ checksum "package-lock.json" }}
           paths:
             - node_modules
+
       - run:
           name: Install Playwright browsers
           command: npx playwright install --with-deps
+
       - run:
           name: Run Playwright tests
           command: npx playwright test --shard=$((CIRCLE_NODE_INDEX+1))/${CIRCLE_NODE_TOTAL}
+          env:
+
       - store_test_results:
           path: ~/project/test-results
-      - run:
-          name: Prepare test-results per node (for artifacts)
-          command: |
-            for i in 0 1; do mkdir -p test-results-$i; done
-            cp -r test-results/. test-results-${CIRCLE_NODE_INDEX}/ 2>/dev/null || true
+
       - store_artifacts:
           when: always
-          path: ~/project/playwright-report-0
-          destination: playwright-report-0
-          continue_on_fail: true
+          path: ~/project/playwright-report
+          destination: playwright-report
+
       - store_artifacts:
           when: always
-          path: ~/project/test-results-0
-          destination: test-results-0
-          continue_on_fail: true
-      - store_artifacts:
-          when: always
-          path: ~/project/playwright-report-1
-          destination: playwright-report-1
-          continue_on_fail: true
-      - store_artifacts:
-          when: always
-          path: ~/project/test-results-1
-          destination: test-results-1
-          continue_on_fail: true
+          path: ~/project/test-results
+          destination: test-results
 
 workflows:
   test-on-push-and-pr:
     jobs:
       - test
-

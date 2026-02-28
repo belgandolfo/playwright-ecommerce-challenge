@@ -5,15 +5,6 @@ import * as dotenv from 'dotenv';
 const env = process.env.TEST_ENV ?? 'dev';
 dotenv.config({ path: `.env.${env}` });
 
-/** In CI with parallelism (e.g. CircleCI), use a per-node dir so each node has unique output. */
-function getCiReportDir(baseName) {
-  const nodeIndex = process.env.CIRCLE_NODE_INDEX;
-  if (nodeIndex !== undefined && nodeIndex !== '') {
-    return `${baseName}-${nodeIndex}`;
-  }
-  return baseName;
-}
-
 /**
  * @see https://playwright.dev/docs/test-configuration
  */
@@ -27,16 +18,10 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
-  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
+  /* Reporter: in CI use default playwright-report and test-results so CircleCI store_artifacts/store_test_results find them. */
   reporter: process.env.CI
     ? [
-        [
-          'html',
-          {
-            open: 'never',
-            outputFolder: getCiReportDir('playwright-report'),
-          },
-        ],
+        ['html', { open: 'never' }],
         [
           'junit',
           {

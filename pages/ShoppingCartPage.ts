@@ -3,6 +3,7 @@ import { BasePage } from './BasePage';
 import shopItems from '../test-data/shopItems.json';
 
 export class ShoppingCartPage extends BasePage {
+  readonly shoppingCartHeader: Locator;
   readonly cartTotalTitle: Locator;
   readonly cartTotalPrice: Locator;
   readonly proceedToCheckoutButton: Locator;
@@ -14,6 +15,9 @@ export class ShoppingCartPage extends BasePage {
   constructor(page: Page) {
     super(page);
 
+    this.shoppingCartHeader = page.getByRole('heading', {
+      name: 'SHOPPING CART',
+    });
     this.cartTotalTitle = page.locator('.cart-total-title');
     this.cartTotalPrice = page.locator('.cart-total-price');
     this.proceedToCheckoutButton = page.locator('button.btn-purchase');

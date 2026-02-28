@@ -44,6 +44,7 @@ This downloads Chromium, Firefox, and WebKit for testing.
 
 - `playwright.config.js` – main Playwright Test configuration (browsers, reporters, options).
 - `tests/` – test specs written with `@playwright/test` in TypeScript.
+  - `fixtures.ts` – custom fixtures that inject page objects into tests.
   - `example.spec.ts` – sample tests against `https://playwright.dev/`.
 - `pages/` – Page Object Model (POM) classes that model screens in the app.
 - `package.json` – Node project metadata and scripts.
@@ -105,6 +106,24 @@ npm run test:dev
 npm run test:qa
 ```
 
+**Choosing the login user**
+
+The auto fixture `loggedInPageWithLogout` uses the user selected by **`TEST_USER`** (default: `admin`). You can run with a specific user via npm scripts:
+
+```bash
+# Dev + admin user (default)
+npm run test:dev:admin
+
+# Dev + non-admin user
+npm run test:dev:nonAdmin
+
+# Same for QA
+npm run test:qa:admin
+npm run test:qa:nonAdmin
+```
+
+Or set the env yourself: `TEST_USER=nonAdmin npm run test:dev`. Valid values: `admin`, `nonAdmin` (from `test-data/users.ts`).
+
 ---
 
 ## Writing New Tests
@@ -127,6 +146,44 @@ npx playwright test tests/login.spec.ts
 ```
 
 For more advanced patterns (page objects, fixtures, auth helpers), see the official docs: `https://playwright.dev/docs/test-intro`.
+
+---
+
+## Test fixtures
+
+This project uses **custom fixtures** in `tests/fixtures.ts`. Tests that import `test` and `expect` from that file get page objects (e.g. `loginPage`, `shoppingCartPage`) injected instead of constructing them by hand.
+
+**Why use fixtures?**
+
+- **Less boilerplate** – You request only the pages you need (e.g. `async ({ loginPage, shoppingCartPage }) => { ... }`). No `new LoginPage(page)` in every test.
+- **Consistent setup** – Page objects are created the same way everywhere; you can later add shared setup (e.g. base URL, auth) in one place.
+- **Clear dependencies** – Each test declares what it uses in its argument list, which makes tests easier to read and refactor.
+- **Reuse and scaling** – New fixtures (e.g. “logged-in user”) can be added once and reused across many tests.
+
+**`loggedInPageWithLogout` (auto fixture)**
+
+This fixture is **automatic**: it runs for every test that uses the default `test` from this file. You get a page signed in as the **admin user** (credentials from `.env.dev` / `.env.qa`), with login **before** the test and logout **after**, so each test has a fresh session. The page object fixtures (`loginPage`, `shoppingCartPage`, etc.) all use this logged-in page by default.
+
+```ts
+import { test, expect } from './fixtures';
+
+test('add item as admin', async ({ shoppingCartPage }) => {
+  await shoppingCartPage.goto();
+  await shoppingCartPage.addItemToCart('iphone12');
+});
+```
+
+To run tests **without** login (e.g. login page tests), use **`testNoAuth`**:
+
+```ts
+import { testNoAuth, expect } from './fixtures';
+
+testNoAuth('shows error for invalid credentials', async ({
+  loginPage,
+}) => {
+  await loginPage.login('bad@example.com', 'wrong');
+});
+```
 
 ---
 

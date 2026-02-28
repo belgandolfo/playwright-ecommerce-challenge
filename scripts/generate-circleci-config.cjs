@@ -13,6 +13,11 @@ const outPath = path.join(root, '.circleci', 'config.yml');
 
 const { circleParallelism } = JSON.parse(fs.readFileSync(constantsPath, 'utf8'));
 
+const blobReportIndices = Array.from(
+  { length: circleParallelism },
+  (_, i) => i
+).join(' ');
+
 const persistSteps = Array.from(
   { length: circleParallelism },
   (_, i) =>
@@ -63,7 +68,7 @@ jobs:
       - run:
           name: Prepare blob report for merge (unique path per node)
           command: |
-            mkdir -p blob-reports-\${CIRCLE_NODE_INDEX}
+            for i in ${blobReportIndices}; do mkdir -p blob-reports-\$i; done
             cp -r blob-report/. blob-reports-\${CIRCLE_NODE_INDEX}/ 2>/dev/null || true
 ${persistSteps}
 
@@ -87,7 +92,7 @@ ${persistSteps}
           command: |
             mkdir -p all-blob-reports
             for d in blob-reports-*; do
-              [ -d "$d" ] && cp -r "$d"/* all-blob-reports/ 2>/dev/null || true
+              [ -d "$d" ] && [ -n "$(ls -A "$d" 2>/dev/null)" ] && cp -r "$d"/* all-blob-reports/
             done
             npx playwright merge-reports --reporter html ./all-blob-reports
       - store_artifacts:

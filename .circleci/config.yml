@@ -39,7 +39,7 @@ jobs:
       - run:
           name: Prepare blob report for merge (unique path per node)
           command: |
-            mkdir -p blob-reports-${CIRCLE_NODE_INDEX}
+            for i in 0 1; do mkdir -p blob-reports-$i; done
             cp -r blob-report/. blob-reports-${CIRCLE_NODE_INDEX}/ 2>/dev/null || true
       - persist_to_workspace:
           <<: *persist_blob

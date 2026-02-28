@@ -154,10 +154,12 @@ For all run commands (by env and user), see [Running Tests](#running-tests).
 
 **When it runs:** On every push and when pull requests are opened or updated.
 
+**Config:** `.circleci/config.yml` is generated from `ci-constants.json` (single source of truth for `circleParallelism`). To change the number of parallel workers, edit the JSON and run `npm run generate:circleci`.
+
 **Where to find results:**
 
 - **Tests** tab – Pass/fail summary (from JUnit results).
-- **Artifacts** – `playwright-report` (HTML report) and `test-results` (videos, traces). Download from the job page to inspect failures.
+- **Artifacts** – A single **merged HTML report** (`playwright-report`) from the `merge-reports` job, combining all parallel shards. Download it to inspect failures across the full run.
 
 ---
 

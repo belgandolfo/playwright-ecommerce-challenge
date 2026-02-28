@@ -27,14 +27,16 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
+  /* In CI we use blob reporter so a separate merge job can combine all shards into one HTML report. */
   reporter: process.env.CI
     ? [
-        ['html', { open: 'never' }],
+        ['blob'],
         [
           'junit',
           {
             outputFile:
-              process.env.CIRCLE_NODE_INDEX !== undefined
+              process.env.CIRCLE_NODE_INDEX !== undefined &&
+              process.env.CIRCLE_NODE_INDEX !== ''
                 ? `test-results/junit-${process.env.CIRCLE_NODE_INDEX}.xml`
                 : 'test-results/junit.xml',
           },

@@ -2,6 +2,7 @@ version: 2.1
 
 jobs:
   test:
+    parallelism: 4
     docker:
       - image: mcr.microsoft.com/playwright:v1.58.2-jammy
     working_directory: ~/project
@@ -13,14 +14,14 @@ jobs:
 
       - restore_cache:
           keys:
-            - npm-{{ checksum 'package-lock.json' }}
+            - npm-{{ checksum "package-lock.json" }}
 
       - run:
           name: Install dependencies
           command: npm ci
 
       - save_cache:
-          key: npm-{{ checksum 'package-lock.json' }}
+          key: npm-{{ checksum "package-lock.json" }}
           paths:
             - node_modules
 
@@ -30,7 +31,7 @@ jobs:
 
       - run:
           name: Run Playwright tests
-          command: npx playwright test
+          command: npx playwright test --shard=$((CIRCLE_NODE_INDEX+1))/${CIRCLE_NODE_TOTAL}
           env:
 
       - store_test_results:

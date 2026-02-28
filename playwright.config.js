@@ -30,7 +30,15 @@ export default defineConfig({
   reporter: process.env.CI
     ? [
         ['html', { open: 'never' }],
-        ['junit', { outputFile: 'test-results/junit.xml' }],
+        [
+          'junit',
+          {
+            outputFile:
+              process.env.CIRCLE_NODE_INDEX !== undefined
+                ? `test-results/junit-${process.env.CIRCLE_NODE_INDEX}.xml`
+                : 'test-results/junit.xml',
+          },
+        ],
       ]
     : [['html', { open: 'always' }]],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */

@@ -7,6 +7,10 @@
     "test": "playwright test",
     "test:dev": "TEST_ENV=dev playwright test",
     "test:qa": "TEST_ENV=qa playwright test",
+    "test:dev:admin": "TEST_ENV=dev TEST_USER=admin playwright test",
+    "test:dev:nonAdmin": "TEST_ENV=dev TEST_USER=nonAdmin playwright test",
+    "test:qa:admin": "TEST_ENV=qa TEST_USER=admin playwright test",
+    "test:qa:nonAdmin": "TEST_ENV=qa TEST_USER=nonAdmin playwright test",
     "lint": "eslint . --ext .ts,.js,.cjs,.mjs",
     "lint:fix": "eslint . --ext .ts,.js,.cjs,.mjs --fix",
     "format": "prettier --write ."

@@ -2,18 +2,13 @@ version: 2.1
 
 jobs:
   test:
-    parameters:
-      node_index:
-        type: integer
-        default: 0
+    parallelism: 4
     docker:
       - image: mcr.microsoft.com/playwright:v1.58.2-jammy
     working_directory: ~/project
     environment:
       CI: true
       TEST_ENV: qa
-      CIRCLE_NODE_INDEX: << parameters.node_index >>
-      CIRCLE_NODE_TOTAL: 4
     steps:
       - checkout
 
@@ -47,20 +42,50 @@ jobs:
             mv playwright-report playwright-report-${CIRCLE_NODE_INDEX} 2>/dev/null || true
             mv test-results test-results-${CIRCLE_NODE_INDEX} 2>/dev/null || true
 
+      # The eight repeated store_artifacts blocks are needed because CircleCI doesnt support 
+      # dynamic paths/destinations (e.g. from env vars) in the config.
       - store_artifacts:
           when: always
-          path: ~/project/playwright-report-<< parameters.node_index >>
-          destination: playwright-report-<< parameters.node_index >>
-
+          path: ~/project/playwright-report-0
+          destination: playwright-report-0
+          continue_on_fail: true
       - store_artifacts:
           when: always
-          path: ~/project/test-results-<< parameters.node_index >>
-          destination: test-results-<< parameters.node_index >>
+          path: ~/project/playwright-report-1
+          destination: playwright-report-1
+          continue_on_fail: true
+      - store_artifacts:
+          when: always
+          path: ~/project/playwright-report-2
+          destination: playwright-report-2
+          continue_on_fail: true
+      - store_artifacts:
+          when: always
+          path: ~/project/playwright-report-3
+          destination: playwright-report-3
+          continue_on_fail: true
+      - store_artifacts:
+          when: always
+          path: ~/project/test-results-0
+          destination: test-results-0
+          continue_on_fail: true
+      - store_artifacts:
+          when: always
+          path: ~/project/test-results-1
+          destination: test-results-1
+          continue_on_fail: true
+      - store_artifacts:
+          when: always
+          path: ~/project/test-results-2
+          destination: test-results-2
+          continue_on_fail: true
+      - store_artifacts:
+          when: always
+          path: ~/project/test-results-3
+          destination: test-results-3
+          continue_on_fail: true
 
 workflows:
   test-on-push-and-pr:
     jobs:
-      - test:
-          matrix:
-            parameters:
-              node_index: [0, 1, 2, 3]
+      - test

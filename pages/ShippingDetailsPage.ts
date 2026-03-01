@@ -9,6 +9,10 @@ export class ShippingDetailsPage extends BasePage {
   readonly cityInput: Locator;
   readonly countrySelect: Locator;
   readonly submitOrderButton: Locator;
+  /** Message shown when required fields are missing (e.g. "Please submit this field"). */
+  readonly validationMessage: Locator;
+  /** Country select placeholder / first option (e.g. "Select a country") when in error state. */
+  readonly countrySelectPlaceholder: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -22,6 +26,8 @@ export class ShippingDetailsPage extends BasePage {
     this.cityInput = page.locator('input[name="city"]');
     this.countrySelect = page.locator('#countries_dropdown_menu');
     this.submitOrderButton = page.getByRole('button', { name: 'Submit Order' });
+    this.validationMessage = page.getByText(/please submit this field/i);
+    this.countrySelectPlaceholder = page.getByText(/select a country/i);
   }
 
   /**
@@ -32,20 +38,18 @@ export class ShippingDetailsPage extends BasePage {
   }
 
   /**
-   * Fills in the shipping details form using a record identified by alias
+   * Fills in the shipping details form using a record identified by key
    * from `test-data/shippingData.json`.
    */
-  async fillShippingDetails(alias: string): Promise<void> {
-    const record = shippingData.find((entry) => entry.alias === alias);
-
-    if (!record) {
-      throw new Error(`No shipping data found for alias: ${alias}`);
-    }
+  async fillShippingDetails(key: keyof typeof shippingData): Promise<void> {
+    const record = shippingData[key];
 
     await this.phoneNumberInput.fill(record.phoneNumber);
     await this.streetInput.fill(record.street);
     await this.cityInput.fill(record.city);
-    await this.countrySelect.selectOption({ label: record.country });
+    if (record.country) {
+      await this.countrySelect.selectOption({ label: record.country });
+    }
     await this.submitOrderButton.click();
   }
   /**
@@ -53,5 +57,16 @@ export class ShippingDetailsPage extends BasePage {
    */
   async submitOrder(): Promise<void> {
     await this.submitOrderButton.click();
+  }
+
+  /**
+   * Returns the HTML5 validation message for a form control (the text the browser shows in the
+   * tooltip when the field is invalid). Use after submit to assert the validation tooltip content.
+   */
+  async getValidationMessage(locator: Locator): Promise<string> {
+    return locator.evaluate((el) => {
+      const formControl = el as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+      return formControl.validationMessage ?? '';
+    });
   }
 }

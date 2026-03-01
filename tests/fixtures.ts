@@ -6,6 +6,7 @@ import { ShoppingCartPage } from '../pages/ShoppingCartPage';
 import { ShippingDetailsPage } from '../pages/ShippingDetailsPage';
 import { OrderConfirmationPage } from '../pages/OrderConfirmationPage';
 import { getTestUser } from '../test-data/users';
+import shopItems from '../test-data/shopItems.json';
 
 type PageFixtures = {
   loggedInPageWithLogout: Page;
@@ -38,7 +39,17 @@ export const test = base.extend<PageFixtures>({
   },
 
   shippingDetailsPage: async ({ loggedInPageWithLogout }, use) => {
-    await use(new ShippingDetailsPage(loggedInPageWithLogout));
+    const shoppingCartPage = new ShoppingCartPage(loggedInPageWithLogout);
+    await shoppingCartPage.addItemToCart('iphone12' as keyof typeof shopItems);
+    await shoppingCartPage.proceedToCheckout();
+    const shippingDetailsPage = new ShippingDetailsPage(loggedInPageWithLogout);
+    await expect(shippingDetailsPage.shippingDetailsHeader).toBeVisible();
+    await expect(shippingDetailsPage.phoneNumberInput).toBeVisible();
+    await expect(shippingDetailsPage.streetInput).toBeVisible();
+    await expect(shippingDetailsPage.cityInput).toBeVisible();
+    await expect(shippingDetailsPage.countrySelect).toBeVisible();
+    await expect(shippingDetailsPage.submitOrderButton).toBeVisible();
+    await use(shippingDetailsPage);
   },
 
   shoppingCartPage: async ({ loggedInPageWithLogout }, use) => {

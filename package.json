@@ -13,8 +13,7 @@
     "test:qa:nonAdmin": "TEST_ENV=qa TEST_USER=nonAdmin playwright test",
     "lint": "eslint . --ext .ts,.js,.cjs,.mjs",
     "lint:fix": "eslint . --ext .ts,.js,.cjs,.mjs --fix",
-    "format": "prettier --write .",
-    "generate:circleci": "node scripts/generate-circleci-config.cjs"
+    "format": "prettier --write ."
   },
   "keywords": [],
   "author": "",

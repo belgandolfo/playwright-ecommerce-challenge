@@ -33,10 +33,6 @@ export const test = base.extend<PageFixtures>({
     { auto: true },
   ],
 
-  loginPage: async ({ loggedInPageWithLogout }, use) => {
-    await use(new LoginPage(loggedInPageWithLogout));
-  },
-
   orderConfirmationPage: async ({ loggedInPageWithLogout }, use) => {
     await use(new OrderConfirmationPage(loggedInPageWithLogout));
   },
@@ -46,7 +42,10 @@ export const test = base.extend<PageFixtures>({
   },
 
   shoppingCartPage: async ({ loggedInPageWithLogout }, use) => {
-    await use(new ShoppingCartPage(loggedInPageWithLogout));
+    const shoppingCartPage = new ShoppingCartPage(loggedInPageWithLogout);
+    //await shoppingCartPage.goto(); // this is not needed because the urls are the same for all pages
+    await expect(shoppingCartPage.shoppingCartHeader).toBeVisible();
+    await use(shoppingCartPage);
   },
 });
 
@@ -57,6 +56,10 @@ export const test = base.extend<PageFixtures>({
 export const testNoAuth = base.extend<PageFixtures>({
   loggedInPageWithLogout: async ({ page }, use) => {
     await use(page);
+  },
+
+  shoppingCartPage: async ({ page }, use) => {
+    await use(new ShoppingCartPage(page));
   },
 
   loginPage: async ({ page }, use) => {
@@ -73,18 +76,6 @@ export const testNoAuth = base.extend<PageFixtures>({
     await expect(loginPage.homeButton).toBeVisible();
     await expect(loginPage.contactButton).toBeVisible();
     await use(loginPage);
-  },
-
-  orderConfirmationPage: async ({ page }, use) => {
-    await use(new OrderConfirmationPage(page));
-  },
-
-  shippingDetailsPage: async ({ page }, use) => {
-    await use(new ShippingDetailsPage(page));
-  },
-
-  shoppingCartPage: async ({ page }, use) => {
-    await use(new ShoppingCartPage(page));
   },
 });
 

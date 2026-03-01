@@ -74,6 +74,23 @@ With custom env/user (e.g. QA + nonAdmin):
 TEST_ENV=qa TEST_USER=nonAdmin npx playwright test
 ```
 
+### By browser (project)
+
+By default, tests run on all configured browsers (Chromium, Firefox, WebKit). To run only on one browser, use the `--project` flag:
+
+| Browser   | Command |
+|----------|---------|
+| Chromium only | `npm run test:dev -- --project=chromium` |
+| Firefox only  | `npm run test:dev -- --project=firefox`  |
+| WebKit only   | `npm run test:dev -- --project=webkit`    |
+
+You can combine with any env/user script, for example:
+
+```bash
+npm run test:qa -- --project=chromium
+npm run test:dev:nonAdmin -- --project=firefox
+```
+
 ### Other run options
 
 Run tests in headed mode (see the browser):
@@ -88,10 +105,11 @@ Run a specific test file:
 npm run test:qa -- tests/login.spec.ts
 ```
 
-Run a specific test by title:
+Run a specific test by title (include the spec file so the correct fixtures are loaded):
 
 ```bash
-npm run test:dev -- -g "has title"
+npm run test:dev -- tests/shopping-cart.spec.ts -g "add same item multiple times"
+npm run test:qa -- tests/shopping-cart.spec.ts -g "add same item multiple times" --headed --project=chromium
 ```
 
 ---

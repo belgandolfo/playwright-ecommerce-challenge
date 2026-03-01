@@ -18,13 +18,6 @@ export class BasePage {
   }
 
   /**
-   * Navigates to the ecommerce auth homepage.
-   */
-  async goto(): Promise<void> {
-    await this.page.goto('https://qa-practice.netlify.app/auth_ecommerce.html');
-  }
-
-  /**
    * Logs out the user.
    */
   async logout(): Promise<void> {

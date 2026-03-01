@@ -41,8 +41,7 @@ export class ShoppingCartPage extends BasePage {
    * If the item is already in the cart, the app shows a native alert(); handle it in tests with
    * page.waitForEvent('dialog') before calling this a second time for the same item.
    */
-  async addItemToCart(key: keyof typeof shopItems): Promise<void> {
-    const item = shopItems[key];
+  async addItemToCart(item: (typeof shopItems)[keyof typeof shopItems]): Promise<void> {
     const itemCard = this.shopItems.locator('.shop-item', {
       has: this.page.locator('.shop-item-title', { hasText: item.title }),
     });
@@ -58,15 +57,12 @@ export class ShoppingCartPage extends BasePage {
   }
 
   /**
-   * Updates the quantity for a specific cart item, looked up by key
-   * from `test-data/shopItems.json`.
+   * Updates the quantity for a specific cart item (e.g. shopItems.samsung).
    */
-  async updateItemQuantity(key: keyof typeof shopItems, quantity: number): Promise<void> {
-    const item = shopItems[key];
-    if (!item) {
-      throw new Error(`No shop item found for key: ${key}`);
-    }
-
+  async updateItemQuantity(
+    item: (typeof shopItems)[keyof typeof shopItems],
+    quantity: number,
+  ): Promise<void> {
     const cartRow = this.page
       .locator('.cart-items .cart-row')
       .filter({ hasText: item.title });
@@ -77,8 +73,7 @@ export class ShoppingCartPage extends BasePage {
   /**
    * Removes a specific cart item by key from `test-data/shopItems.json`.
    */
-  async removeItem(key: keyof typeof shopItems): Promise<void> {
-    const item = shopItems[key];
+  async removeItem(item: (typeof shopItems)[keyof typeof shopItems]): Promise<void> {
     const cartRow = this.page
       .locator('.cart-items .cart-row')
       .filter({ hasText: item.title });

@@ -55,7 +55,7 @@ export function getTestUser(): { username: string; password: string } {
   const user = usersByKey[key];
   if (!user) {
     throw new Error(
-      `Unknown TEST_USER="${process.env.TEST_USER}". Use: admin or nonAdmin.`,
+      `Unknown TEST_USER="${process.env.TEST_USER}".`,
     );
   }
   return user;

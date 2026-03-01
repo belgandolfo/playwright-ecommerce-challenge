@@ -2,9 +2,12 @@
 import { test, expect } from './fixtures';
 import shopItems from '../test-data/shopItems.json';
 
-function expectedTotal(keys: (keyof typeof shopItems)[], quantities?: number[]): number {
-  const qty = quantities ?? keys.map(() => 1);
-  return keys.reduce((sum, key, i) => sum + shopItems[key].price * qty[i], 0);
+function expectedTotal(
+  items: Array<{ price: number }>,
+  quantities?: number[],
+): number {
+  const qty = quantities ?? items.map(() => 1);
+  return items.reduce((sum, item, i) => sum + item.price * qty[i], 0);
 }
 
 test.describe('Shopping Cart', () => {
@@ -18,28 +21,28 @@ test.describe('Shopping Cart', () => {
     test('add one item by key', async ({
       shoppingCartPage,
     }) => {
-      await shoppingCartPage.addItemToCart('iphone12');
+      await shoppingCartPage.addItemToCart(shopItems.iphone12);
       await expect(shoppingCartPage.cartRows).toHaveCount(1);
       await expect(shoppingCartPage.cartTotalPrice).toContainText(
-        expectedTotal(['iphone12']).toFixed(2),
+        expectedTotal([shopItems.iphone12]).toFixed(2),
       );
     });
 
     test('add several different items by key', async ({
       shoppingCartPage,
     }) => {
-      await shoppingCartPage.addItemToCart('iphone12');
-      await shoppingCartPage.addItemToCart('nokia');
-      await shoppingCartPage.addItemToCart('samsung');
+      await shoppingCartPage.addItemToCart(shopItems.iphone12);
+      await shoppingCartPage.addItemToCart(shopItems.nokia);
+      await shoppingCartPage.addItemToCart(shopItems.samsung);
       await expect(shoppingCartPage.cartRows).toHaveCount(3);
-      const total = expectedTotal(['iphone12', 'nokia', 'samsung']);
+      const total = expectedTotal([shopItems.iphone12, shopItems.nokia, shopItems.samsung]);
       await expect(shoppingCartPage.cartTotalPrice).toContainText(total.toFixed(2));
     });
 
     test('add same item multiple times', async ({
       shoppingCartPage,
     }) => {
-      await shoppingCartPage.addItemToCart('iphone12');
+      await shoppingCartPage.addItemToCart(shopItems.iphone12);
       // Accept the native alert in a listener so it's dismissed as soon as it appears
       const dialogHandled = new Promise<void>((resolve, reject) => {
         shoppingCartPage.page.once('dialog', async (dialog) => {
@@ -52,7 +55,7 @@ test.describe('Shopping Cart', () => {
           }
         });
       });
-      await shoppingCartPage.addItemToCart('iphone12');
+      await shoppingCartPage.addItemToCart(shopItems.iphone12);
       await dialogHandled;
     });
   });
@@ -61,20 +64,20 @@ test.describe('Shopping Cart', () => {
     test('update quantity to a valid number', async ({
       shoppingCartPage,
     }) => {
-      await shoppingCartPage.addItemToCart('iphone12');
-      await shoppingCartPage.updateItemQuantity('iphone12', 2);
+      await shoppingCartPage.addItemToCart(shopItems.iphone12);
+      await shoppingCartPage.updateItemQuantity(shopItems.iphone12, 2);
       await shoppingCartPage.page
         .locator('.cart-items .cart-row')
         .filter({ hasText: shopItems.iphone12.title })
         .locator('input')
         .blur();
-      const total = expectedTotal(['iphone12'], [2]);
+      const total = expectedTotal([shopItems.iphone12], [2]);
       await expect(shoppingCartPage.cartTotalPrice).toContainText(total.toFixed(2));
     });
 
     test('update quantity to 0', async ({ shoppingCartPage }) => {
-      await shoppingCartPage.addItemToCart('nokia');
-      await shoppingCartPage.updateItemQuantity('nokia', 0);
+      await shoppingCartPage.addItemToCart(shopItems.nokia);
+      await shoppingCartPage.updateItemQuantity(shopItems.nokia, 0);
       const quantityInput = shoppingCartPage.page
         .locator('.cart-items .cart-row')
         .filter({ hasText: shopItems.nokia.title })
@@ -86,7 +89,7 @@ test.describe('Shopping Cart', () => {
     test('invalid quantity (empty, negative, non-numeric)', async ({
       shoppingCartPage,
     }) => {
-      await shoppingCartPage.addItemToCart('samsung');
+      await shoppingCartPage.addItemToCart(shopItems.samsung);
       const row = shoppingCartPage.page
         .locator('.cart-items .cart-row')
         .filter({ hasText: shopItems.samsung.title });
@@ -111,9 +114,9 @@ test.describe('Shopping Cart', () => {
     test('remove one item', async ({
       shoppingCartPage,
     }) => {
-      await shoppingCartPage.addItemToCart('iphone12');
-      await shoppingCartPage.addItemToCart('nokia');
-      await shoppingCartPage.removeItem('iphone12');
+      await shoppingCartPage.addItemToCart(shopItems.iphone12);
+      await shoppingCartPage.addItemToCart(shopItems.nokia);
+      await shoppingCartPage.removeItem(shopItems.iphone12);
       
       await expect(shoppingCartPage.cartRows).toHaveCount(1);
       await expect(shoppingCartPage.cartTotalPrice).toContainText(
@@ -122,8 +125,8 @@ test.describe('Shopping Cart', () => {
     });
 
     test('remove all items', async ({ shoppingCartPage }) => {
-      await shoppingCartPage.addItemToCart('nokia');
-      await shoppingCartPage.removeItem('nokia');
+      await shoppingCartPage.addItemToCart(shopItems.nokia);
+      await shoppingCartPage.removeItem(shopItems.nokia);
 
       await expect(shoppingCartPage.cartRows).toHaveCount(0);
     });
@@ -131,13 +134,13 @@ test.describe('Shopping Cart', () => {
     test('remove one of several items', async ({
       shoppingCartPage,
     }) => {
-      await shoppingCartPage.addItemToCart('iphone12');
-      await shoppingCartPage.addItemToCart('huawei');
-      await shoppingCartPage.addItemToCart('samsung');
-      await shoppingCartPage.removeItem('huawei');
+      await shoppingCartPage.addItemToCart(shopItems.iphone12);
+      await shoppingCartPage.addItemToCart(shopItems.huawei);
+      await shoppingCartPage.addItemToCart(shopItems.samsung);
+      await shoppingCartPage.removeItem(shopItems.huawei);
 
       await expect(shoppingCartPage.cartRows).toHaveCount(2);
-      const total = expectedTotal(['iphone12', 'samsung']);
+      const total = expectedTotal([shopItems.iphone12, shopItems.samsung]);
       await expect(shoppingCartPage.cartTotalPrice).toContainText(total.toFixed(2));
     });
   });

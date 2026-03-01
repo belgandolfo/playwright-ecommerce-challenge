@@ -41,15 +41,11 @@ export class ShippingDetailsPage extends BasePage {
    * Fills in the shipping details form using a record identified by key
    * from `test-data/shippingData.json`.
    */
-  async fillShippingDetails(key: keyof typeof shippingData): Promise<void> {
-    const record = shippingData[key];
-
-    await this.phoneNumberInput.fill(record.phoneNumber);
-    await this.streetInput.fill(record.street);
-    await this.cityInput.fill(record.city);
-    if (record.country) {
-      await this.countrySelect.selectOption({ label: record.country });
-    }
+  async fillShippingDetails(record: typeof shippingData[keyof typeof shippingData]): Promise<void> {
+    record.phoneNumber && await this.phoneNumberInput.fill(record.phoneNumber);
+    record.street && await this.streetInput.fill(record.street);
+    record.city && await this.cityInput.fill(record.city);
+    record.country && await this.countrySelect.selectOption({ label: record.country });
     await this.submitOrderButton.click();
   }
   /**
@@ -60,10 +56,31 @@ export class ShippingDetailsPage extends BasePage {
   }
 
   /**
-   * Returns the HTML5 validation message for a form control (the text the browser shows in the
-   * tooltip when the field is invalid). Use after submit to assert the validation tooltip content.
+   * Returns the HTML5 validation message for the phone number input.
    */
-  async getValidationMessage(locator: Locator): Promise<string> {
+  async getValidationMessageForPhoneNumber(): Promise<string> {
+    return this.getValidationMessage(this.phoneNumberInput);
+  }
+
+  /**
+   * Returns the HTML5 validation message for the street input.
+   */
+  async getValidationMessageForStreet(): Promise<string> {
+    return this.getValidationMessage(this.streetInput);
+  }
+
+  /**
+   * Returns the HTML5 validation message for the city input.
+   */
+  async getValidationMessageForCity(): Promise<string> {
+    return this.getValidationMessage(this.cityInput);
+  }
+
+  /**
+ * Returns the HTML5 validation message for a form control (the text the browser shows in the
+ * tooltip when the field is invalid). Use after submit to assert the validation tooltip content.
+ */
+  private async getValidationMessage(locator: Locator): Promise<string> {
     return locator.evaluate((el) => {
       const formControl = el as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
       return formControl.validationMessage ?? '';

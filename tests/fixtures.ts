@@ -7,13 +7,18 @@ import { ShippingDetailsPage } from '../pages/ShippingDetailsPage';
 import { OrderConfirmationPage } from '../pages/OrderConfirmationPage';
 import { getTestUser } from '../test-data/users';
 import shopItems from '../test-data/shopItems.json';
+import shippingData from '../test-data/shippingData.json';
 
 type PageFixtures = {
-  loggedInPageWithLogout: Page;
+  authenticatedUser: Page;
+  basePage: BasePage;
   loginPage: LoginPage;
-  orderConfirmationPage: OrderConfirmationPage;
-  shippingDetailsPage: ShippingDetailsPage;
+  userInOrderConfirmationPage: OrderConfirmationPage;
+  userInShippingDetailsPage: ShippingDetailsPage;
+  userInShoppingCartPage: ShoppingCartPage;
   shoppingCartPage: ShoppingCartPage;
+  shippingDetailsPage: ShippingDetailsPage;
+  orderConfirmationPage: OrderConfirmationPage;
 };
 
 /**
@@ -21,7 +26,7 @@ type PageFixtures = {
  * Use page object fixtures (loginPage, shoppingCartPage, etc.) – they use the logged-in page.
  */
 export const test = base.extend<PageFixtures>({
-  loggedInPageWithLogout: [
+  authenticatedUser: [
     async ({ page }, use) => {
       const user = getTestUser();
       const loginPage = new LoginPage(page);
@@ -34,29 +39,55 @@ export const test = base.extend<PageFixtures>({
     { auto: true },
   ],
 
-  orderConfirmationPage: async ({ loggedInPageWithLogout }, use) => {
-    await use(new OrderConfirmationPage(loggedInPageWithLogout));
-  },
-
-  shippingDetailsPage: async ({ loggedInPageWithLogout }, use) => {
-    const shoppingCartPage = new ShoppingCartPage(loggedInPageWithLogout);
-    await shoppingCartPage.addItemToCart('iphone12' as keyof typeof shopItems);
+  userInShippingDetailsPage: async ({ authenticatedUser }, use) => {
+    const shoppingCartPage = new ShoppingCartPage(authenticatedUser);
+    await shoppingCartPage.addItemToCart(shopItems.iphone12);
     await shoppingCartPage.proceedToCheckout();
-    const shippingDetailsPage = new ShippingDetailsPage(loggedInPageWithLogout);
-    await expect(shippingDetailsPage.shippingDetailsHeader).toBeVisible();
-    await expect(shippingDetailsPage.phoneNumberInput).toBeVisible();
-    await expect(shippingDetailsPage.streetInput).toBeVisible();
-    await expect(shippingDetailsPage.cityInput).toBeVisible();
-    await expect(shippingDetailsPage.countrySelect).toBeVisible();
-    await expect(shippingDetailsPage.submitOrderButton).toBeVisible();
-    await use(shippingDetailsPage);
+    const userInShippingDetailsPage = new ShippingDetailsPage(authenticatedUser);
+    await expect(userInShippingDetailsPage.shippingDetailsHeader).toBeVisible();
+    await expect(userInShippingDetailsPage.phoneNumberInput).toBeVisible();
+    await expect(userInShippingDetailsPage.streetInput).toBeVisible();
+    await expect(userInShippingDetailsPage.cityInput).toBeVisible();
+    await expect(userInShippingDetailsPage.countrySelect).toBeVisible();
+    await expect(userInShippingDetailsPage.submitOrderButton).toBeVisible();
+    await use(userInShippingDetailsPage);
   },
 
-  shoppingCartPage: async ({ loggedInPageWithLogout }, use) => {
-    const shoppingCartPage = new ShoppingCartPage(loggedInPageWithLogout);
+  userInOrderConfirmationPage: async ({ authenticatedUser }, use) => {
+    const shoppingCartPage = new ShoppingCartPage(authenticatedUser);
+    await shoppingCartPage.addItemToCart(shopItems.iphone12);
+    await shoppingCartPage.proceedToCheckout();
+    const userInShippingDetailsPage = new ShippingDetailsPage(authenticatedUser);
+    await expect(userInShippingDetailsPage.shippingDetailsHeader).toBeVisible();
+    await expect(userInShippingDetailsPage.phoneNumberInput).toBeVisible();
+    await expect(userInShippingDetailsPage.streetInput).toBeVisible();
+    await expect(userInShippingDetailsPage.cityInput).toBeVisible();
+    await expect(userInShippingDetailsPage.countrySelect).toBeVisible();
+    await expect(userInShippingDetailsPage.submitOrderButton).toBeVisible();
+    await userInShippingDetailsPage.fillShippingDetails(shippingData.validCustomer);
+    await userInShippingDetailsPage.submitOrder();
+    const userInOrderConfirmationPage = new OrderConfirmationPage(authenticatedUser);
+    await expect(userInOrderConfirmationPage.congratsMessage).toBeVisible();
+    await use(userInOrderConfirmationPage);
+  },
+
+  userInShoppingCartPage: async ({ authenticatedUser }, use) => {
+    const shoppingCartPage = new ShoppingCartPage(authenticatedUser);
     //await shoppingCartPage.goto(); // this is not needed because the urls are the same for all pages
     await expect(shoppingCartPage.shoppingCartHeader).toBeVisible();
     await use(shoppingCartPage);
+  },
+
+  shoppingCartPage: async ({ page }, use) => {
+    await use(new ShoppingCartPage(page));
+  },
+
+  orderConfirmationPage: async ({ page }, use) => {
+    await use(new OrderConfirmationPage(page));
+  },
+
+  shippingDetailsPage: async ({ page }, use) => {
+    await use(new ShippingDetailsPage(page));
   },
 });
 
@@ -65,28 +96,12 @@ export const test = base.extend<PageFixtures>({
  * No login before or logout after; page objects use the raw page.
  */
 export const testNoAuth = base.extend<PageFixtures>({
-  loggedInPageWithLogout: async ({ page }, use) => {
-    await use(page);
+  loginPage: async ({ page }, use) => {
+    await use(new LoginPage(page));
   },
 
   shoppingCartPage: async ({ page }, use) => {
     await use(new ShoppingCartPage(page));
-  },
-
-  loginPage: async ({ page }, use) => {
-    const loginPage = new LoginPage(page);
-    await loginPage.goto();
-    const loginTitle = loginPage.page.getByRole('heading', {
-      name: 'Login - Shop',
-    });
-    await expect(loginTitle).toBeVisible();
-    await expect(loginTitle).toHaveText('Login - Shop');
-    await expect(loginPage.emailInput).toBeVisible();
-    await expect(loginPage.passwordInput).toBeVisible();
-    await expect(loginPage.submitButton).toBeVisible();
-    await expect(loginPage.homeButton).toBeVisible();
-    await expect(loginPage.contactButton).toBeVisible();
-    await use(loginPage);
   },
 });
 

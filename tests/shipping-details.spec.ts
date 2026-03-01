@@ -1,11 +1,13 @@
-import { test, expect } from './fixtures';
+import { test, testNoAuth, expect } from './fixtures';
+import shippingData from '../test-data/shippingData.json';
 
 test.describe('Shipping Details', () => {
   test('fill all fields with valid data', async ({
-    shippingDetailsPage,
+    userInShippingDetailsPage,
+    shippingDetailsPage, 
     orderConfirmationPage,
   }) => {
-    await shippingDetailsPage.fillShippingDetails('validCustomer');
+    await shippingDetailsPage.fillShippingDetails(shippingData.validCustomer);
     await expect(orderConfirmationPage.congratsMessage).toBeVisible();
   });
 
@@ -13,42 +15,36 @@ test.describe('Shipping Details', () => {
   const validationTooltipRegex = /(please\s+)?(submit|fill out|fill in) this field/i;
 
   test('submit with no phone shows error modal', async ({
-    shippingDetailsPage,
+    userInShippingDetailsPage, shippingDetailsPage,
   }) => {
-    await shippingDetailsPage.fillShippingDetails('noPhoneCustomer');
+    await shippingDetailsPage.fillShippingDetails(shippingData.noPhoneCustomer);
     await expect(shippingDetailsPage.shippingDetailsHeader).toBeVisible();
-    const message = await shippingDetailsPage.getValidationMessage(
-      shippingDetailsPage.phoneNumberInput,
-    );
+    const message = await shippingDetailsPage.getValidationMessageForPhoneNumber();
     expect(message).toMatch(validationTooltipRegex);
   });
 
   test('submit with no street shows error modal', async ({
-    shippingDetailsPage,
+    userInShippingDetailsPage, shippingDetailsPage
   }) => {
-    await shippingDetailsPage.fillShippingDetails('noAddressCustomer');
+    await shippingDetailsPage.fillShippingDetails(shippingData.noAddressCustomer);
     await expect(shippingDetailsPage.shippingDetailsHeader).toBeVisible();
-    const message = await shippingDetailsPage.getValidationMessage(
-      shippingDetailsPage.streetInput,
-    );
+    const message = await shippingDetailsPage.getValidationMessageForStreet();
     expect(message).toMatch(validationTooltipRegex);
   });
 
   test('submit with no city shows error modal', async ({
-    shippingDetailsPage,
+    userInShippingDetailsPage, shippingDetailsPage
   }) => {
-    await shippingDetailsPage.fillShippingDetails('noCityCustomer');
+    await shippingDetailsPage.fillShippingDetails(shippingData.noCityCustomer);
     await expect(shippingDetailsPage.shippingDetailsHeader).toBeVisible();
-    const message = await shippingDetailsPage.getValidationMessage(
-      shippingDetailsPage.cityInput,
-    );
+    const message = await shippingDetailsPage.getValidationMessageForCity();
     expect(message).toMatch(validationTooltipRegex);
   });
 
   test('submit with no country changes the color of the country select', async ({
-    shippingDetailsPage,
+    userInShippingDetailsPage, shippingDetailsPage
   }) => {
-    await shippingDetailsPage.fillShippingDetails('noCountryCustomer');
+    await shippingDetailsPage.fillShippingDetails(shippingData.noCountryCustomer);
     await expect(shippingDetailsPage.shippingDetailsHeader).toBeVisible();
     await expect(shippingDetailsPage.countrySelectPlaceholder).toHaveCSS(
       'color',
@@ -57,13 +53,11 @@ test.describe('Shipping Details', () => {
   });
 
   test('submit with all fields empty shows error modal', async ({
-    shippingDetailsPage,
+    userInShippingDetailsPage, shippingDetailsPage  
   }) => {
     await shippingDetailsPage.submitOrder();
     await expect(shippingDetailsPage.shippingDetailsHeader).toBeVisible();
-    const message = await shippingDetailsPage.getValidationMessage(
-      shippingDetailsPage.phoneNumberInput,
-    );
+    const message = await shippingDetailsPage.getValidationMessageForPhoneNumber();
     expect(message).toMatch(validationTooltipRegex);
   });
 
@@ -72,7 +66,7 @@ test.describe('Shipping Details', () => {
    * which is not consistent with the rest of the app's behavior.
    */
   test('invalid phone format (letters, too short)', async ({
-    shippingDetailsPage,
+    userInShippingDetailsPage, shippingDetailsPage  
   }) => {
     // Phone input rejects non-numeric text; Playwright throws when fill is used with letters
     await expect(

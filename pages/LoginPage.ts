@@ -1,5 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 import { BasePage } from './BasePage';
+import { ShoppingCartPage } from './ShoppingCartPage';
 
 export class LoginPage extends BasePage {
   readonly loginHeader: Locator;
@@ -20,7 +21,7 @@ export class LoginPage extends BasePage {
   }
 
   /**
-   * Would navigate to the shopping cart page if the url changed like in an actual project.
+   * Navigates to the login page.
    */
   async goto(): Promise<void> {
     await this.page.goto('https://qa-practice.netlify.app/auth_ecommerce.html');

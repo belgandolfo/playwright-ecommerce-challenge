@@ -1,5 +1,5 @@
 /* eslint-disable playwright/no-standalone-expect */
-import { testNoAuth, expect } from './fixtures';
+import {  testNoAuth, expect } from './fixtures';
 import {
   adminUser,
   invalidUser,
@@ -18,6 +18,7 @@ testNoAuth.describe('Login', () => {
     loginPage,
     shoppingCartPage,
   }) => {
+    await loginPage.goto();
     await loginPage.login(adminUser.username, adminUser.password);
     await expect(loginPage.logoutButton).toBeVisible();
     await expect(shoppingCartPage.shoppingCartHeader).toBeVisible();
@@ -28,6 +29,7 @@ testNoAuth.describe('Login', () => {
     loginPage,
     shoppingCartPage,
   }) => {
+    await loginPage.goto();
     await loginPage.login(nonAdminUser.username, nonAdminUser.password);
     await expect(loginPage.logoutButton).toBeVisible();
     await expect(shoppingCartPage.shoppingCartHeader).toBeVisible();
@@ -36,6 +38,7 @@ testNoAuth.describe('Login', () => {
   testNoAuth('shows error message for non-existing credentials', async ({
     loginPage,
   }) => {
+    await loginPage.goto();
     await loginPage.login(invalidUser.username, invalidUser.password);
     await expect(loginPage.badCredentialsMessage).toBeVisible();
     await expectLoginFormVisible(loginPage);
@@ -44,6 +47,7 @@ testNoAuth.describe('Login', () => {
   testNoAuth('shows error message for valid email and wrong password', async ({
     loginPage,
   }) => {
+    await loginPage.goto();
     await loginPage.login(adminUser.username, 'wrongpassword');
     await expect(loginPage.badCredentialsMessage).toBeVisible();
     await expectLoginFormVisible(loginPage);
@@ -52,6 +56,7 @@ testNoAuth.describe('Login', () => {
   testNoAuth('shows error message for submitions with empty email and password', async ({
     loginPage,
   }) => {
+    await loginPage.goto();
     await loginPage.login('', '');
     await expect(loginPage.badCredentialsMessage).toBeVisible();
     await expectLoginFormVisible(loginPage);
@@ -60,6 +65,7 @@ testNoAuth.describe('Login', () => {
   testNoAuth('shows error message for submitions with empty email', async ({
     loginPage,
   }) => {
+    await loginPage.goto();
     await loginPage.login('', adminUser.password);
     await expect(loginPage.badCredentialsMessage).toBeVisible();
     await expectLoginFormVisible(loginPage);
@@ -68,6 +74,7 @@ testNoAuth.describe('Login', () => {
   testNoAuth('shows error message for submitions with empty password', async ({
     loginPage,
   }) => {
+    await loginPage.goto();
     await loginPage.login(adminUser.username, '');
     await expect(loginPage.badCredentialsMessage).toBeVisible();
     await expectLoginFormVisible(loginPage);

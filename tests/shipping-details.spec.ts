@@ -10,7 +10,7 @@ test.describe('Shipping Details', () => {
   });
 
   // HTML5 validation tooltip text is not in the DOM; assert via input.validationMessage.
-  const validationTooltipRegex = /(submit|fill out|fill in) this field/i;
+  const validationTooltipRegex = /(please\s+)?(submit|fill out|fill in) this field/i;
 
   test('submit with no phone shows error modal', async ({
     shippingDetailsPage,

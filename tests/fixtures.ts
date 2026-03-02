@@ -72,6 +72,7 @@ export const test = base.extend<PageFixtures>({
     await expect(shippingDetailsPage.countrySelect).toBeVisible();
     await expect(shippingDetailsPage.submitOrderButton).toBeVisible();
     await shippingDetailsPage.fillShippingDetails(shippingData.validCustomer);
+    await shippingDetailsPage.submitOrder();
     const orderConfirmationPage = new OrderConfirmationPage(authenticatedUser);
     await expect(orderConfirmationPage.congratsMessage).toBeVisible();
     await use({ orderConfirmationPage, cartTotal });

@@ -9,9 +9,7 @@ export class ShippingDetailsPage extends BasePage {
   readonly cityInput: Locator;
   readonly countrySelect: Locator;
   readonly submitOrderButton: Locator;
-  /** Message shown when required fields are missing (e.g. "Please submit this field"). */
   readonly validationMessage: Locator;
-  /** Country select placeholder / first option (e.g. "Select a country") when in error state. */
   readonly countrySelectPlaceholder: Locator;
 
   constructor(page: Page) {
@@ -41,13 +39,15 @@ export class ShippingDetailsPage extends BasePage {
    * Fills in the shipping details form using a record identified by key
    * from `test-data/shippingData.json`.
    */
-  async fillShippingDetails(record: typeof shippingData[keyof typeof shippingData]): Promise<void> {
-    record.phoneNumber && await this.phoneNumberInput.fill(record.phoneNumber);
-    record.street && await this.streetInput.fill(record.street);
-    record.city && await this.cityInput.fill(record.city);
-    record.country && await this.countrySelect.selectOption({ label: record.country });
-    await this.submitOrderButton.click();
+  async fillShippingDetails(
+    record: (typeof shippingData)[keyof typeof shippingData],
+  ): Promise<void> {
+    if (record.phoneNumber) await this.phoneNumberInput.fill(record.phoneNumber);
+    if (record.street) await this.streetInput.fill(record.street);
+    if (record.city) await this.cityInput.fill(record.city);
+    if (record.country) await this.countrySelect.selectOption({ label: record.country });
   }
+
   /**
    * Clicks the submit order button on the shipping details form.
    */
@@ -77,9 +77,9 @@ export class ShippingDetailsPage extends BasePage {
   }
 
   /**
- * Returns the HTML5 validation message for a form control (the text the browser shows in the
- * tooltip when the field is invalid). Use after submit to assert the validation tooltip content.
- */
+   * Returns the HTML5 validation message for a form control (the text the browser shows in the
+   * tooltip when the field is invalid). Use after submit to assert the validation tooltip content.
+   */
   private async getValidationMessage(locator: Locator): Promise<string> {
     return locator.evaluate((el) => {
       const formControl = el as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;

@@ -1,6 +1,7 @@
 import type { Locator, Page } from '@playwright/test';
 import { BasePage } from './BasePage';
 import shopItems from '../test-data/shopItems.json';
+import { CartRow } from './components/CartRow';
 
 export class ShoppingCartPage extends BasePage {
   readonly shoppingCartHeader: Locator;
@@ -29,6 +30,11 @@ export class ShoppingCartPage extends BasePage {
     this.cartRows = page.locator('.cart-items .cart-row');
   }
 
+  //Components
+  async getCartRow(item: (typeof shopItems)[keyof typeof shopItems]): Promise<CartRow> {
+    return new CartRow(this.page, item);
+  }
+
   /**
    * Would navigate to the shopping cart page if the url changed like in an actual project.
    */
@@ -54,29 +60,5 @@ export class ShoppingCartPage extends BasePage {
    */
   async proceedToCheckout(): Promise<void> {
     await this.proceedToCheckoutButton.click();
-  }
-
-  /**
-   * Updates the quantity for a specific cart item (e.g. shopItems.samsung).
-   */
-  async updateItemQuantity(
-    item: (typeof shopItems)[keyof typeof shopItems],
-    quantity: number,
-  ): Promise<void> {
-    const cartRow = this.page
-      .locator('.cart-items .cart-row')
-      .filter({ hasText: item.title });
-
-    await cartRow.locator('input').fill(quantity.toString());
-  }
-
-  /**
-   * Removes a specific cart item by key from `test-data/shopItems.json`.
-   */
-  async removeItem(item: (typeof shopItems)[keyof typeof shopItems]): Promise<void> {
-    const cartRow = this.page
-      .locator('.cart-items .cart-row')
-      .filter({ hasText: item.title });
-    await cartRow.getByRole('button', { name: 'REMOVE' }).click();
   }
 }

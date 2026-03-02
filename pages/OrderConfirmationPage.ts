@@ -10,7 +10,7 @@ export class OrderConfirmationPage extends BasePage {
   }
 
   /**
-   * Locator for content that contains the given address text (street, city, or country).
+   * Locator for content contains the given address text (street, city, or country).
    * Use to assert shipping details on the confirmation page match the order.
    */
   hasAddressText(text: string): Locator {

@@ -9,7 +9,7 @@ export class FileUploadPage extends BasePage {
   readonly noFileChosenText: Locator;
   /** Element that displays the chosen file name (often the same as the "No file chosen" area after selection). */
   readonly fileNameText: Locator;
-  /** Message shown after a successful upload (e.g. contains the file name). */
+  /** Message shown after a successful upload and contains the file name). */
   readonly successMessage: Locator;
   /** Message shown when upload fails or validation fails. */
   readonly errorMessage: Locator;
@@ -35,7 +35,7 @@ export class FileUploadPage extends BasePage {
 
   /**
    * Adds a file from the given path.
-   * Use a path to a real file or a path from the project.
+   * Use a path from the project for testing purposes.
    */
   async addFile(filePath: string): Promise<void> {
     await this.fileInput.setInputFiles(filePath);

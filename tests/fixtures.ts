@@ -13,7 +13,7 @@ type PageFixtures = {
   authenticatedUser: Page;
   basePage: BasePage;
   loginPage: LoginPage;
-  userInOrderConfirmationPage: OrderConfirmationPage;
+  userInOrderConfirmationPage: { orderConfirmationPage: OrderConfirmationPage; cartTotal: number };
   userInShippingDetailsPage: ShippingDetailsPage;
   userInShoppingCartPage: ShoppingCartPage;
   shoppingCartPage: ShoppingCartPage;
@@ -54,21 +54,25 @@ export const test = base.extend<PageFixtures>({
   },
 
   userInOrderConfirmationPage: async ({ authenticatedUser }, use) => {
+    const itemsAdded = [shopItems.iphone12];
+    const cartTotal = itemsAdded.reduce((sum, item) => sum + item.price, 0);
+
     const shoppingCartPage = new ShoppingCartPage(authenticatedUser);
-    await shoppingCartPage.addItemToCart(shopItems.iphone12);
+    for (const item of itemsAdded) {
+      await shoppingCartPage.addItemToCart(item);
+    }
     await shoppingCartPage.proceedToCheckout();
-    const userInShippingDetailsPage = new ShippingDetailsPage(authenticatedUser);
-    await expect(userInShippingDetailsPage.shippingDetailsHeader).toBeVisible();
-    await expect(userInShippingDetailsPage.phoneNumberInput).toBeVisible();
-    await expect(userInShippingDetailsPage.streetInput).toBeVisible();
-    await expect(userInShippingDetailsPage.cityInput).toBeVisible();
-    await expect(userInShippingDetailsPage.countrySelect).toBeVisible();
-    await expect(userInShippingDetailsPage.submitOrderButton).toBeVisible();
-    await userInShippingDetailsPage.fillShippingDetails(shippingData.validCustomer);
-    await userInShippingDetailsPage.submitOrder();
-    const userInOrderConfirmationPage = new OrderConfirmationPage(authenticatedUser);
-    await expect(userInOrderConfirmationPage.congratsMessage).toBeVisible();
-    await use(userInOrderConfirmationPage);
+    const shippingDetailsPage = new ShippingDetailsPage(authenticatedUser);
+    await expect(shippingDetailsPage.shippingDetailsHeader).toBeVisible();
+    await expect(shippingDetailsPage.phoneNumberInput).toBeVisible();
+    await expect(shippingDetailsPage.streetInput).toBeVisible();
+    await expect(shippingDetailsPage.cityInput).toBeVisible();
+    await expect(shippingDetailsPage.countrySelect).toBeVisible();
+    await expect(shippingDetailsPage.submitOrderButton).toBeVisible();
+    await shippingDetailsPage.fillShippingDetails(shippingData.validCustomer);
+    const orderConfirmationPage = new OrderConfirmationPage(authenticatedUser);
+    await expect(orderConfirmationPage.congratsMessage).toBeVisible();
+    await use({ orderConfirmationPage, cartTotal });
   },
 
   userInShoppingCartPage: async ({ authenticatedUser }, use) => {

@@ -1,0 +1,30 @@
+---
+description: Workflow before writing code, minimal changes, tests, libraries, and new files
+alwaysApply: true
+---
+
+# Workflow & Code Standards
+
+## Before Writing or Modifying Code
+- **Restate the goal** in one sentence.
+- **List assumptions** you are making.
+- **Ask for confirmation** if requirements are ambiguous.
+- **Do NOT generate code** until confirmed.
+
+## When Proposing Code
+- **Modify the smallest amount possible** to meet the goal.
+- **Explain why each change** is needed.
+- **Avoid refactoring** unrelated code.
+
+## When Proposing Tests
+- **Identify** happy path and edge cases.
+- **Consider** reliability and flakiness risks.
+- **Explain** what behavior is being validated.
+
+## Before Introducing a Library
+- **Ask for approval** before adding a dependency.
+- **Explain** the benefit and trade-offs.
+
+## When Creating New Files
+- **Include a brief purpose comment** at the top (or in a header).
+- **Suggest README updates** if the change affects setup, usage, or structure.

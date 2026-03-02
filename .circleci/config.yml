@@ -13,7 +13,6 @@ executors:
       - image: mcr.microsoft.com/playwright:v1.58.2-jammy
     resource_class: medium
     working_directory: ~/project
-
 jobs:
   test:
     parameters:
@@ -22,7 +21,6 @@ jobs:
       test_env:
         type: string
     executor: playwright
-    context: << parameters.context_name >>
     parallelism: 2
     environment:
       CI: true
@@ -57,15 +55,25 @@ jobs:
           destination: test-results
 
 workflows:
-  test:
+  test-qa:
+    when:
+      not:
+        equal: [<< pipeline.parameters.environment >>, 'dev']
     jobs:
       - test:
           name: test-qa
+          context:
+            - qa
           context_name: qa
           test_env: qa
-          when: << pipeline.parameters.environment != "dev" >>
+
+  test-dev:
+    when:
+      equal: [<< pipeline.parameters.environment >>, 'dev']
+    jobs:
       - test:
           name: test-dev
+          context:
+            - dev
           context_name: dev
           test_env: dev
-          when: << pipeline.parameters.environment == "dev" >>

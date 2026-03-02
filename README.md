@@ -43,13 +43,14 @@ This downloads Chromium, Firefox, and WebKit for testing.
 ## Project Structure
 
 - `playwright.config.js` – main Playwright Test configuration (browsers, reporters, options).
+- `fixtures/` – shared fixtures and custom `test` exports used by all specs.
 - `tests/` – test specs written with `@playwright/test` in TypeScript.
-  - `fixtures.ts` – custom fixtures that inject page objects into tests.
-  - `example.spec.ts` – sample tests against `https://playwright.dev/`.
 - `pages/` – Page Object Model (POM) classes that model screens in the app.
-- `package.json` – Node project metadata and scripts.
+- `test-data/` – test users and domain data used by specs.
+- `.circleci/config.yml` – CircleCI pipeline to run Playwright tests in parallel using `qa`/`dev` contexts and publish reports/artifacts.
+- `package.json` – Node project metadata, scripts, and dev dependencies.
 
-You can add more spec files under `tests/` to grow your automation suite.
+You can add more page objects under `pages/` and more spec files under `tests/` to grow your automation suite.
 
 ---
 
@@ -59,14 +60,14 @@ You can choose **environment** (dev / qa) and **login user** (admin / nonAdmin) 
 
 ### By environment and user
 
-| Goal | Command |
-|------|---------|
-| Dev, default user (admin) | `npm run test:dev` |
-| QA, default user (admin) | `npm run test:qa` |
-| Dev + admin user | `npm run test:dev:admin` |
-| Dev + nonAdmin user | `npm run test:dev:nonAdmin` |
-| QA + admin user | `npm run test:qa:admin` |
-| QA + nonAdmin user | `npm run test:qa:nonAdmin` |
+| Goal                      | Command                     |
+| ------------------------- | --------------------------- |
+| Dev, default user (admin) | `npm run test:dev`          |
+| QA, default user (admin)  | `npm run test:qa`           |
+| Dev + admin user          | `npm run test:dev:admin`    |
+| Dev + nonAdmin user       | `npm run test:dev:nonAdmin` |
+| QA + admin user           | `npm run test:qa:admin`     |
+| QA + nonAdmin user        | `npm run test:qa:nonAdmin`  |
 
 With custom env/user (e.g. QA + nonAdmin):
 
@@ -78,11 +79,11 @@ TEST_ENV=qa TEST_USER=nonAdmin npx playwright test
 
 By default, tests run on all configured browsers (Chromium, Firefox, WebKit). To run only on one browser, use the `--project` flag:
 
-| Browser   | Command |
-|----------|---------|
+| Browser       | Command                                  |
+| ------------- | ---------------------------------------- |
 | Chromium only | `npm run test:dev -- --project=chromium` |
 | Firefox only  | `npm run test:dev -- --project=firefox`  |
-| WebKit only   | `npm run test:dev -- --project=webkit`    |
+| WebKit only   | `npm run test:dev -- --project=webkit`   |
 
 You can combine with any env/user script, for example:
 
@@ -129,13 +130,10 @@ To generate the report without opening it (e.g. in CI), run the same command; th
 ### How to view the HTML report
 
 - **Locally:** The report is configured to **open in the browser after every run** when not in CI. If it doesn’t open, or you want to open it again later:
-
   ```bash
   npx playwright show-report
   ```
-
   This serves the latest report from `playwright-report/` and opens it in your browser.
-
 - **In CI (e.g. CircleCI):** The report does not auto-open (there is no display). The report is still generated in `playwright-report/` and is stored as an artifact so you can download and open it, or run `npx playwright show-report` locally on the downloaded folder.
 
 ### Where artifacts (videos / traces) live
@@ -156,13 +154,13 @@ Use the video to watch the test run up to the failure; use the trace to replay a
 
 ## Environments (dev / qa)
 
-This project uses **dotenv** and **`TEST_ENV`** to switch environments:
+This project uses **dotenv** and `**TEST_ENV`\*\* to switch environments:
 
 - `.env.dev` – settings for the **dev** environment.
 - `.env.qa` – settings for the **qa** environment.
 - `playwright.config.js` reads `TEST_ENV` and loads `.env.<TEST_ENV>`, using `BASE_URL` as the `baseURL` for all tests.
 
-The login user is controlled by **`TEST_USER`** (default: `admin`). The auto fixture `loggedInPageWithLogout` uses this to log in as admin or nonAdmin. Valid values: `admin`, `nonAdmin` (from `test-data/users.ts`).
+The login user is controlled by `**TEST_USER`\*\* (default: `admin`). The auto fixture `loggedInPageWithLogout` uses this to log in as admin or nonAdmin. Valid values: `admin`, `nonAdmin` (from `test-data/users.ts`).
 
 For all run commands (by env and user), see [Running Tests](#running-tests).
 
@@ -170,9 +168,16 @@ For all run commands (by env and user), see [Running Tests](#running-tests).
 
 ## Continuous Integration (CircleCI)
 
-**When it runs:** On every push and when pull requests are opened or updated.
+**When it runs:** On every push and when pull requests are opened or updated. Also, a daily morning run was configured. Pipelines run in CircleCI using a single `test` job that can target **qa** or **dev** via contexts.
 
-**Where to find results:**
+- **Default environment:** `qa`
+  - The CircleCI config defines a pipeline parameter `environment` with default `qa`.
+  - On normal pushes/PRs (no parameter set), the `**test-qa` workflow** runs, using the `**qa`context** and`TEST_ENV=qa`.
+- **Dev environment (manual runs):**
+  - From the CircleCI UI, click **Run pipeline** and set the `environment` parameter to `dev`.
+  - This triggers the `**test-dev` workflow**, which runs the same job but with the `**dev`context** and`TEST_ENV=dev`.
+
+**Where to find results (both qa and dev runs):**
 
 - **Tests** tab – Pass/fail summary (from JUnit results).
 - **Artifacts** – Per-node **HTML report** (`playwright-report-0`, `playwright-report-1`, …) and **test-results** (`test-results-0`, `test-results-1`, …) with JUnit and traces. Download from the job’s Artifacts tab to inspect failures.
@@ -213,7 +218,7 @@ This project uses **custom fixtures** in `tests/fixtures.ts`. Tests that import 
 - **Clear dependencies** – Each test declares what it uses in its argument list, which makes tests easier to read and refactor.
 - **Reuse and scaling** – New fixtures (e.g. “logged-in user”) can be added once and reused across many tests.
 
-**`loggedInPageWithLogout` (auto fixture)**
+`**loggedInPageWithLogout` (auto fixture)\*\*
 
 This fixture is **automatic**: it runs for every test that uses the default `test` from this file. You get a page signed in as the **admin user** (credentials from `.env.dev` / `.env.qa`), with login **before** the test and logout **after**, so each test has a fresh session. The page object fixtures (`loginPage`, `shoppingCartPage`, etc.) all use this logged-in page by default.
 
@@ -226,14 +231,12 @@ test('add item as admin', async ({ shoppingCartPage }) => {
 });
 ```
 
-To run tests **without** login (e.g. login page tests), use **`testNoAuth`**:
+To run tests **without** login (e.g. login page tests), use `**testNoAuth`\*\*:
 
 ```ts
 import { testNoAuth, expect } from './fixtures';
 
-testNoAuth('shows error for invalid credentials', async ({
-  loginPage,
-}) => {
+testNoAuth('shows error for invalid credentials', async ({ loginPage }) => {
   await loginPage.login('bad@example.com', 'wrong');
 });
 ```
@@ -244,7 +247,7 @@ testNoAuth('shows error for invalid credentials', async ({
 
 This project uses **ESLint** and **Prettier** for code quality and consistent formatting:
 
-- **ESLint** (`eslint`, `@typescript-eslint/*`, `eslint-plugin-playwright`) checks for common issues in TypeScript and Playwright tests.
+- **ESLint** (`eslint`, `@typescript-eslint/`\*, `eslint-plugin-playwright`) checks for common issues in TypeScript and Playwright tests.
 - **Prettier** (`prettier`, `eslint-config-prettier`) handles code formatting.
 
 From the project root, you can run:
@@ -259,4 +262,3 @@ npm run lint:fix
 # Format the codebase with Prettier
 npm run format
 ```
-

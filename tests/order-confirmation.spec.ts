@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect } from '../fixtures/fixtures';
 import shippingData from '../test-data/shippingData.json';
 
 test.describe('Order Confirmation', () => {
@@ -12,8 +12,6 @@ test.describe('Order Confirmation', () => {
     await expect(orderConfirmationPage.hasAddressText(street)).toBeVisible();
     await expect(orderConfirmationPage.hasAddressText(city)).toBeVisible();
     await expect(orderConfirmationPage.hasAddressText(country)).toBeVisible();
-    await expect(orderConfirmationPage.congratsMessage).toContainText(
-      cartTotal.toFixed(2),
-    );
+    await expect(orderConfirmationPage.congratsMessage).toContainText(cartTotal.toFixed(2));
   });
 });

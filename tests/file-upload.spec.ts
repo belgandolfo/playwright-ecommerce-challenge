@@ -1,5 +1,5 @@
 import path from 'path';
-import { test, expect } from './fixtures';
+import { test, expect } from '../fixtures/fixtures';
 import { FileUploadPage } from '../pages/FileUploadPage';
 
 const FILES_DIR = path.join(process.cwd(), 'test-data', 'files');
@@ -12,13 +12,8 @@ test.describe('File Upload', () => {
   test('successful submission - pdf file', async ({ userInFileUploadPage }) => {
     const fileUploadPage = new FileUploadPage(userInFileUploadPage.page);
     await fileUploadPage.goto();
-    //await expect(fileUploadPage.noFileChosenText).toBeVisible();
-    // the no file chosen text is not findable in the page
 
-    const file = filePath('pdf-file.pdf');
-    await fileUploadPage.addFile(file);
-    //await expect(fileUploadPage.fileNameText).toContainText('pdf-file.pdf');
-    // the file name text is not findable in the page
+    await fileUploadPage.addFile(filePath('pdf-file.pdf'));
     await expect(fileUploadPage.noFileChosenText).toBeHidden();
 
     await fileUploadPage.clickSubmit();
@@ -29,13 +24,8 @@ test.describe('File Upload', () => {
   test('successful submission - mp4 file', async ({ userInFileUploadPage }) => {
     const fileUploadPage = new FileUploadPage(userInFileUploadPage.page);
     await fileUploadPage.goto();
-    //await expect(fileUploadPage.noFileChosenText).toBeVisible();
-    // the no file chosen text is not findable in the page
 
-    const file = filePath('video-file.mp4');
-    await fileUploadPage.addFile(file);
-    //await expect(fileUploadPage.fileNameText).toContainText('video-file.mp4');
-    // the file name text is not findable in the page
+    await fileUploadPage.addFile(filePath('video-file.mp4'));
     await expect(fileUploadPage.noFileChosenText).toBeHidden();
 
     await fileUploadPage.clickSubmit();
@@ -46,13 +36,8 @@ test.describe('File Upload', () => {
   test('successful submission - png file', async ({ userInFileUploadPage }) => {
     const fileUploadPage = new FileUploadPage(userInFileUploadPage.page);
     await fileUploadPage.goto();
-    //await expect(fileUploadPage.noFileChosenText).toBeVisible();
-    // the no file chosen text is not findable in the page
 
-    const file = filePath('image-file.png');
-    await fileUploadPage.addFile(file);
-    //await expect(fileUploadPage.fileNameText).toContainText('image-file.png');
-    // the file name text is not findable in the page
+    await fileUploadPage.addFile(filePath('image-file.png'));
     await expect(fileUploadPage.noFileChosenText).toBeHidden();
 
     await fileUploadPage.clickSubmit();
@@ -63,13 +48,8 @@ test.describe('File Upload', () => {
   test('successful submission - mp3 file', async ({ userInFileUploadPage }) => {
     const fileUploadPage = new FileUploadPage(userInFileUploadPage.page);
     await fileUploadPage.goto();
-    //await expect(fileUploadPage.noFileChosenText).toBeVisible();
-    // the no file chosen text is not findable in the page
 
-    const file = filePath('audio-file.mp3');
-    await fileUploadPage.addFile(file);
-    //await expect(fileUploadPage.fileNameText).toContainText('audio-file.mp3');
-    // the file name text is not findable in the page
+    await fileUploadPage.addFile(filePath('audio-file.mp3'));
     await expect(fileUploadPage.noFileChosenText).toBeHidden();
 
     await fileUploadPage.clickSubmit();
@@ -82,8 +62,6 @@ test.describe('File Upload', () => {
   }) => {
     const fileUploadPage = new FileUploadPage(userInFileUploadPage.page);
     await fileUploadPage.goto();
-    //await expect(fileUploadPage.noFileChosenText).toBeVisible();
-    // the no file chosen text is not findable in the page
 
     await fileUploadPage.clickSubmit();
     await expect(fileUploadPage.errorMessage).toBeVisible();
@@ -95,13 +73,11 @@ test.describe('File Upload', () => {
     const fileUploadPage = new FileUploadPage(userInFileUploadPage.page);
     await fileUploadPage.goto();
 
-    const xlsFile = filePath('xls-file.xls');
-    await fileUploadPage.addFile(xlsFile);
+    await fileUploadPage.addFile(filePath('xls-file.xls'));
     await fileUploadPage.clickSubmit();
     await expect(fileUploadPage.errorMessage).toBeVisible();
 
-    const docFile = filePath('doc-file.doc');
-    await fileUploadPage.addFile(docFile);
+    await fileUploadPage.addFile(filePath('doc-file.doc'));
     await fileUploadPage.clickSubmit();
     await expect(fileUploadPage.errorMessage).toBeVisible();
   });
@@ -109,8 +85,7 @@ test.describe('File Upload', () => {
   test('submitting files over 50MB shows an error message', async ({ userInFileUploadPage }) => {
     const fileUploadPage = new FileUploadPage(userInFileUploadPage.page);
     await fileUploadPage.goto();
-    const file = filePath('large-file.zip');
-    await fileUploadPage.addFile(file);
+    await fileUploadPage.addFile(filePath('large-file.zip'));
     await fileUploadPage.clickSubmit();
     await expect(fileUploadPage.errorMessage).toBeVisible();
   });
@@ -120,8 +95,7 @@ test.describe('File Upload', () => {
   }) => {
     const fileUploadPage = new FileUploadPage(userInFileUploadPage.page);
     await fileUploadPage.goto();
-    const file = filePath('empty.txt');
-    await fileUploadPage.addFile(file);
+    await fileUploadPage.addFile(filePath('empty.txt'));
     await fileUploadPage.clickSubmit();
     await expect(fileUploadPage.errorMessage).toBeVisible();
   });
@@ -131,13 +105,8 @@ test.describe('File Upload', () => {
   }) => {
     const fileUploadPage = new FileUploadPage(userInFileUploadPage.page);
     await fileUploadPage.goto();
-    //await expect(fileUploadPage.noFileChosenText).toBeVisible();
-    // the no file chosen text is not findable in the page
 
-    const file = filePath('pdf (file!) copy.pdf');
-    await fileUploadPage.addFile(file);
-    //await expect(fileUploadPage.fileNameText).toContainText('pdf (file!) copy.pdf');
-    // the file name text is not findable in the page
+    await fileUploadPage.addFile(filePath('pdf (file!) copy.pdf'));
     await expect(fileUploadPage.noFileChosenText).toBeHidden();
 
     await fileUploadPage.clickSubmit();

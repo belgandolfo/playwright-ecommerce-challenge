@@ -48,6 +48,10 @@ export class ShippingDetailsPage extends BasePage {
     if (record.country) await this.countrySelect.selectOption({ label: record.country });
   }
 
+  async fillPhoneNumber(phoneNumber: string): Promise<void> {
+    await this.phoneNumberInput.fill(phoneNumber);
+  }
+
   /**
    * Clicks the submit order button on the shipping details form.
    */

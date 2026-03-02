@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect } from '../fixtures/fixtures';
 import shippingData from '../test-data/shippingData.json';
 import { OrderConfirmationPage } from '../pages/OrderConfirmationPage';
 
@@ -69,10 +69,10 @@ test.describe('Shipping Details', () => {
   test('invalid phone format (letters, too short)', async ({ userInShippingDetailsPage }) => {
     const shippingDetailsPage = userInShippingDetailsPage;
     // Phone input rejects non-numeric text; Playwright throws when fill is used with letters
-    await expect(shippingDetailsPage.phoneNumberInput.fill('abc')).rejects.toThrow(
+    await expect(shippingDetailsPage.fillPhoneNumber('abc')).rejects.toThrow(
       /Cannot type text into input/,
     );
-    await shippingDetailsPage.phoneNumberInput.fill('12');
+    await shippingDetailsPage.fillPhoneNumber('12');
     await expect(shippingDetailsPage.phoneNumberInput).not.toHaveValue('12');
   });
 });

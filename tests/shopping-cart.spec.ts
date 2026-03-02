@@ -1,5 +1,5 @@
 /* eslint-disable playwright/no-standalone-expect */
-import { test, expect } from './fixtures';
+import { test, expect } from '../fixtures/fixtures';
 import shopItems from '../test-data/shopItems.json';
 
 function expectedTotal(items: Array<{ price: number }>, quantities?: number[]): number {
@@ -36,22 +36,13 @@ test.describe('Shopping Cart', () => {
     });
 
     test('add same item multiple times', async ({ userInShoppingCartPage }) => {
-      const shoppingCartPage = userInShoppingCartPage;
-      await shoppingCartPage.addItemToCart(shopItems.iphone12);
-      // Accept the native alert in a listener so it's dismissed as soon as it appears
-      const dialogHandled = new Promise<void>((resolve, reject) => {
-        shoppingCartPage.page.once('dialog', async (dialog) => {
-          try {
-            expect(dialog.message()).toMatch(/already added|already in cart/i);
-            await dialog.accept();
-            resolve();
-          } catch (e) {
-            reject(e);
-          }
-        });
-      });
-      await shoppingCartPage.addItemToCart(shopItems.iphone12);
-      await dialogHandled;
+      const dialogHandled = userInShoppingCartPage.waitForNextDialogAndAccept(
+        /already added|already in cart/i,
+      );
+      await userInShoppingCartPage.addItemToCart(shopItems.iphone12);
+      await userInShoppingCartPage.addItemToCart(shopItems.iphone12);
+      const dialogMessage = await dialogHandled;
+      expect(dialogMessage).toMatch(/already added|already in cart/i);
     });
   });
 

@@ -14,8 +14,8 @@ testNoAuth.describe('Login', () => {
   testNoAuth('successful login with valid admin credentials', async ({ loginPage }) => {
     await loginPage.goto();
     await loginPage.login(adminUser.username, adminUser.password);
-    await expect(loginPage.logoutButton).toBeVisible();
     const shoppingCartPage = new ShoppingCartPage(loginPage.page);
+    await expect(shoppingCartPage.logoutButton).toBeVisible();
     await expect(shoppingCartPage.shoppingCartHeader).toBeVisible();
   });
 
@@ -23,8 +23,8 @@ testNoAuth.describe('Login', () => {
   testNoAuth('successful login with nonAdmin credentials', async ({ loginPage }) => {
     await loginPage.goto();
     await loginPage.login(nonAdminUser.username, nonAdminUser.password);
-    await expect(loginPage.logoutButton).toBeVisible();
     const shoppingCartPage = new ShoppingCartPage(loginPage.page);
+    await expect(shoppingCartPage.logoutButton).toBeVisible();
     await expect(shoppingCartPage.shoppingCartHeader).toBeVisible();
   });
 

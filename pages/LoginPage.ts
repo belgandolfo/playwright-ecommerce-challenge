@@ -1,7 +1,7 @@
 import type { Locator, Page } from '@playwright/test';
-import { BasePage } from './BasePage';
 
-export class LoginPage extends BasePage {
+export class LoginPage {
+  readonly page: Page;
   readonly loginHeader: Locator;
   readonly emailInput: Locator;
   readonly passwordInput: Locator;
@@ -9,7 +9,7 @@ export class LoginPage extends BasePage {
   readonly badCredentialsMessage: Locator;
 
   constructor(page: Page) {
-    super(page);
+    this.page = page;
     this.loginHeader = page.getByRole('link', { name: 'Login - Shop' });
     this.emailInput = page.getByRole('textbox', { name: 'Email' });
     this.passwordInput = page.getByRole('textbox', { name: 'Password' });

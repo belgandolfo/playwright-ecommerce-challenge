@@ -1,6 +1,7 @@
 import { test, expect } from '../fixtures/fixtures';
 import shippingData from '../test-data/shippingData.json';
 import { OrderConfirmationPage } from '../pages/OrderConfirmationPage';
+import type { ShippingDetailsPage } from '../pages/ShippingDetailsPage';
 
 test.describe('Shipping Details', () => {
   test('fill all fields with valid data', async ({ userInShippingDetailsPage }) => {
@@ -14,32 +15,38 @@ test.describe('Shipping Details', () => {
   // HTML5 validation tooltip text is not in the DOM; assert via input.validationMessage.
   const validationTooltipRegex = /(please\s+)?(submit|fill out|fill in) this field/i;
 
-  test('submit with no phone shows error modal', async ({ userInShippingDetailsPage }) => {
-    const shippingDetailsPage = userInShippingDetailsPage;
-    await shippingDetailsPage.fillShippingDetails(shippingData.noPhoneCustomer);
-    await shippingDetailsPage.submitOrder();
-    await expect(shippingDetailsPage.shippingDetailsHeader).toBeVisible();
-    const message = await shippingDetailsPage.getValidationMessageForPhoneNumber();
-    expect(message).toMatch(validationTooltipRegex);
-  });
+  const validationCases: Array<{
+    label: string;
+    customer: (typeof shippingData)['noPhoneCustomer' | 'noAddressCustomer' | 'noCityCustomer'];
+    getMessage: (page: ShippingDetailsPage) => Promise<string>;
+  }> = [
+    {
+      label: 'phone',
+      customer: shippingData.noPhoneCustomer,
+      getMessage: (p) => p.getValidationMessageForPhoneNumber(),
+    },
+    {
+      label: 'street',
+      customer: shippingData.noAddressCustomer,
+      getMessage: (p) => p.getValidationMessageForStreet(),
+    },
+    {
+      label: 'city',
+      customer: shippingData.noCityCustomer,
+      getMessage: (p) => p.getValidationMessageForCity(),
+    },
+  ];
 
-  test('submit with no street shows error modal', async ({ userInShippingDetailsPage }) => {
-    const shippingDetailsPage = userInShippingDetailsPage;
-    await shippingDetailsPage.fillShippingDetails(shippingData.noAddressCustomer);
-    await shippingDetailsPage.submitOrder();
-    await expect(shippingDetailsPage.shippingDetailsHeader).toBeVisible();
-    const message = await shippingDetailsPage.getValidationMessageForStreet();
-    expect(message).toMatch(validationTooltipRegex);
-  });
-
-  test('submit with no city shows error modal', async ({ userInShippingDetailsPage }) => {
-    const shippingDetailsPage = userInShippingDetailsPage;
-    await shippingDetailsPage.fillShippingDetails(shippingData.noCityCustomer);
-    await shippingDetailsPage.submitOrder();
-    await expect(shippingDetailsPage.shippingDetailsHeader).toBeVisible();
-    const message = await shippingDetailsPage.getValidationMessageForCity();
-    expect(message).toMatch(validationTooltipRegex);
-  });
+  for (const { label, customer, getMessage } of validationCases) {
+    test(`submit with no ${label} shows error modal`, async ({ userInShippingDetailsPage }) => {
+      const shippingDetailsPage = userInShippingDetailsPage;
+      await shippingDetailsPage.fillShippingDetails(customer);
+      await shippingDetailsPage.submitOrder();
+      await expect(shippingDetailsPage.shippingDetailsHeader).toBeVisible();
+      const message = await getMessage(shippingDetailsPage);
+      expect(message).toMatch(validationTooltipRegex);
+    });
+  }
 
   test('submit with no country changes the color of the country select', async ({
     userInShippingDetailsPage,

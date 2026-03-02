@@ -8,54 +8,25 @@ function filePath(name: string): string {
   return path.join(FILES_DIR, name);
 }
 
+const successfulUploadFiles: Array<{ label: string; fileName: string }> = [
+  { label: 'pdf', fileName: 'pdf-file.pdf' },
+  { label: 'mp4', fileName: 'video-file.mp4' },
+  { label: 'png', fileName: 'image-file.png' },
+  { label: 'mp3', fileName: 'audio-file.mp3' },
+];
+
 test.describe('File Upload', () => {
-  test('successful submission - pdf file', async ({ userInFileUploadPage }) => {
-    const fileUploadPage = new FileUploadPage(userInFileUploadPage.page);
-    await fileUploadPage.goto();
-
-    await fileUploadPage.addFile(filePath('pdf-file.pdf'));
-    await expect(fileUploadPage.noFileChosenText).toBeHidden();
-
-    await fileUploadPage.clickSubmit();
-    await expect(fileUploadPage.successMessage).toBeVisible();
-    await expect(fileUploadPage.successMessage).toContainText('pdf-file.pdf');
-  });
-
-  test('successful submission - mp4 file', async ({ userInFileUploadPage }) => {
-    const fileUploadPage = new FileUploadPage(userInFileUploadPage.page);
-    await fileUploadPage.goto();
-
-    await fileUploadPage.addFile(filePath('video-file.mp4'));
-    await expect(fileUploadPage.noFileChosenText).toBeHidden();
-
-    await fileUploadPage.clickSubmit();
-    await expect(fileUploadPage.successMessage).toBeVisible();
-    await expect(fileUploadPage.successMessage).toContainText('video-file.mp4');
-  });
-
-  test('successful submission - png file', async ({ userInFileUploadPage }) => {
-    const fileUploadPage = new FileUploadPage(userInFileUploadPage.page);
-    await fileUploadPage.goto();
-
-    await fileUploadPage.addFile(filePath('image-file.png'));
-    await expect(fileUploadPage.noFileChosenText).toBeHidden();
-
-    await fileUploadPage.clickSubmit();
-    await expect(fileUploadPage.successMessage).toBeVisible();
-    await expect(fileUploadPage.successMessage).toContainText('image-file.png');
-  });
-
-  test('successful submission - mp3 file', async ({ userInFileUploadPage }) => {
-    const fileUploadPage = new FileUploadPage(userInFileUploadPage.page);
-    await fileUploadPage.goto();
-
-    await fileUploadPage.addFile(filePath('audio-file.mp3'));
-    await expect(fileUploadPage.noFileChosenText).toBeHidden();
-
-    await fileUploadPage.clickSubmit();
-    await expect(fileUploadPage.successMessage).toBeVisible();
-    await expect(fileUploadPage.successMessage).toContainText('audio-file.mp3');
-  });
+  for (const { label, fileName } of successfulUploadFiles) {
+    test(`successful submission - ${label} file`, async ({ userInFileUploadPage }) => {
+      const fileUploadPage = new FileUploadPage(userInFileUploadPage.page);
+      await fileUploadPage.goto();
+      await fileUploadPage.addFile(filePath(fileName));
+      await expect(fileUploadPage.noFileChosenText).toBeHidden();
+      await fileUploadPage.clickSubmit();
+      await expect(fileUploadPage.successMessage).toBeVisible();
+      await expect(fileUploadPage.successMessage).toContainText(fileName);
+    });
+  }
 
   test('submitting with no file selected shows an error message', async ({
     userInFileUploadPage,

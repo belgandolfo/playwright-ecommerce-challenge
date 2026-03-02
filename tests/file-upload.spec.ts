@@ -1,6 +1,5 @@
 import path from 'path';
 import { test, expect } from '../fixtures/fixtures';
-import { FileUploadPage } from '../pages/FileUploadPage';
 
 const FILES_DIR = path.join(process.cwd(), 'test-data', 'files');
 
@@ -18,7 +17,7 @@ const successfulUploadFiles: Array<{ label: string; fileName: string }> = [
 test.describe('File Upload', () => {
   for (const { label, fileName } of successfulUploadFiles) {
     test(`successful submission - ${label} file`, async ({ userInFileUploadPage }) => {
-      const fileUploadPage = new FileUploadPage(userInFileUploadPage.page);
+      const fileUploadPage = userInFileUploadPage;
       await fileUploadPage.goto();
       await fileUploadPage.addFile(filePath(fileName));
       await expect(fileUploadPage.noFileChosenText).toBeHidden();
@@ -32,7 +31,7 @@ test.describe('File Upload', () => {
   test('submitting with no file selected shows an error message', async ({
     userInFileUploadPage,
   }) => {
-    const fileUploadPage = new FileUploadPage(userInFileUploadPage.page);
+    const fileUploadPage = userInFileUploadPage;
     await fileUploadPage.goto();
 
     await fileUploadPage.clickSubmit();
@@ -43,7 +42,7 @@ test.describe('File Upload', () => {
   test('submitting disallowed file types shows an error message', async ({
     userInFileUploadPage,
   }) => {
-    const fileUploadPage = new FileUploadPage(userInFileUploadPage.page);
+    const fileUploadPage = userInFileUploadPage;
     await fileUploadPage.goto();
 
     await fileUploadPage.addFile(filePath('xls-file.xls'));
@@ -57,7 +56,7 @@ test.describe('File Upload', () => {
 
   // This test is failing because there is no file validation on the app
   test('submitting files over 50MB shows an error message', async ({ userInFileUploadPage }) => {
-    const fileUploadPage = new FileUploadPage(userInFileUploadPage.page);
+    const fileUploadPage = userInFileUploadPage;
     await fileUploadPage.goto();
     await fileUploadPage.addFile(filePath('large-file.zip'));
     await fileUploadPage.clickSubmit();
@@ -68,7 +67,7 @@ test.describe('File Upload', () => {
   test('submitting a zero-byte or "empty" file shows an error message', async ({
     userInFileUploadPage,
   }) => {
-    const fileUploadPage = new FileUploadPage(userInFileUploadPage.page);
+    const fileUploadPage = userInFileUploadPage;
     await fileUploadPage.goto();
     await fileUploadPage.addFile(filePath('empty.txt'));
     await fileUploadPage.clickSubmit();
@@ -78,7 +77,7 @@ test.describe('File Upload', () => {
   test('successful submission - file name with spaces and special characters', async ({
     userInFileUploadPage,
   }) => {
-    const fileUploadPage = new FileUploadPage(userInFileUploadPage.page);
+    const fileUploadPage = userInFileUploadPage;
     await fileUploadPage.goto();
 
     await fileUploadPage.addFile(filePath('pdf (file!) copy.pdf'));
@@ -92,7 +91,7 @@ test.describe('File Upload', () => {
   test('successful submission - after choosing multiple files, only last file is shown in the success message', async ({
     userInFileUploadPage,
   }) => {
-    const fileUploadPage = new FileUploadPage(userInFileUploadPage.page);
+    const fileUploadPage = userInFileUploadPage;
     await fileUploadPage.goto();
     await fileUploadPage.addFile(filePath('pdf-file.pdf'));
     await fileUploadPage.addFile(filePath('audio-file.mp3'));

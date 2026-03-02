@@ -56,6 +56,8 @@ You can add more page objects under `pages/` and more spec files under `tests/` 
 
 ## Running Tests
 
+Before running tests, make sure you have at least one environment file set up (for example by copying `.env.example` to `.env.qa` or `.env.dev` and filling in the variables). See [Environments (dev / qa)](#environments-dev--qa) for details and the default QA credentials.
+
 You can choose **environment** (dev / qa) and **login user** (admin / nonAdmin) when running tests. Use the npm scripts below, or set `TEST_ENV` and `TEST_USER` yourself.
 
 ### By environment and user

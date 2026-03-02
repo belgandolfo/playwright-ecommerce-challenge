@@ -99,6 +99,7 @@ export const test = base.extend<PageFixtures>({
  */
 export const testNoAuth = base.extend<PageFixtures>({
   loginPage: async ({ page }, use) => {
+    await page.goto('/auth_ecommerce.html');
     await use(new LoginPage(page));
   },
 });

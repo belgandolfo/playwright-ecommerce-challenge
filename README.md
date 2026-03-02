@@ -154,13 +154,13 @@ Use the video to watch the test run up to the failure; use the trace to replay a
 
 ## Environments (dev / qa)
 
-This project uses **dotenv** and `**TEST_ENV`\*\* to switch environments:
+This project uses **dotenv** and `TEST_ENV` to switch environments:
 
 - `.env.dev` – settings for the **dev** environment.
 - `.env.qa` – settings for the **qa** environment.
 - `playwright.config.js` reads `TEST_ENV` and loads `.env.<TEST_ENV>`, using `BASE_URL` as the `baseURL` for all tests.
 
-The login user is controlled by `**TEST_USER`\*\* (default: `admin`). The auto fixture `loggedInPageWithLogout` uses this to log in as admin or nonAdmin. Valid values: `admin`, `nonAdmin` (from `test-data/users.ts`).
+The login user is controlled by `TEST_USER` (default: `admin`). The auto fixture `authenticatedUser` (in `fixtures/fixtures.ts`) uses this to log in as admin or nonAdmin. Valid values: `admin`, `nonAdmin` (from `test-data/users.ts`).
 
 For all run commands (by env and user), see [Running Tests](#running-tests).
 
@@ -209,7 +209,7 @@ For more advanced patterns (page objects, fixtures, auth helpers), see the offic
 
 ## Test fixtures
 
-This project uses **custom fixtures** in `tests/fixtures.ts`. Tests that import `test` and `expect` from that file get page objects (e.g. `loginPage`, `shoppingCartPage`) injected instead of constructing them by hand.
+This project uses **custom fixtures** in `fixtures/fixtures.ts`. Tests that import `test` and `expect` from that file get page objects (e.g. `loginPage`, `shoppingCartPage`) injected instead of constructing them by hand.
 
 **Why use fixtures?**
 
@@ -218,23 +218,34 @@ This project uses **custom fixtures** in `tests/fixtures.ts`. Tests that import 
 - **Clear dependencies** – Each test declares what it uses in its argument list, which makes tests easier to read and refactor.
 - **Reuse and scaling** – New fixtures (e.g. “logged-in user”) can be added once and reused across many tests.
 
-`**loggedInPageWithLogout` (auto fixture)\*\*
+`**authenticatedUser` (auto fixture)\*\*
 
-This fixture is **automatic**: it runs for every test that uses the default `test` from this file. You get a page signed in as the **admin user** (credentials from `.env.dev` / `.env.qa`), with login **before** the test and logout **after**, so each test has a fresh session. The page object fixtures (`loginPage`, `shoppingCartPage`, etc.) all use this logged-in page by default.
+This fixture is **automatic**: it runs for every test that uses the default `test` from this file. You get a page signed in as the **current test user** (controlled by `TEST_USER`, default `admin`; credentials from `.env.dev` / `.env.qa`), with login **before** the test and logout **after**, so each test has a fresh session. The page object fixtures (`loginPage`, `shoppingCartPage`, etc.) all use this logged-in page by default.
+
+**Stateful “start on the right page” fixtures**
+
+Some fixtures are designed to get the user into a **specific state/page before the test begins**, so each test can start exactly where it needs to and only exercise the behavior in its scope. Examples include:
+
+- `userInShoppingCartPage` – starts on the shopping cart page.
+- `userInShippingDetailsPage` – goes through cart → checkout and lands on shipping details.
+- `userInOrderConfirmationPage` – completes the flow and lands on order confirmation (and can expose computed values like the cart total).
+- `userInFileUploadPage` – logs in and navigates to the file upload page.
+
+This keeps tests focused, faster to write, and less brittle (preconditions live in one place).
 
 ```ts
-import { test, expect } from './fixtures';
+import { test, expect } from '../fixtures/fixtures';
 
-test('add item as admin', async ({ shoppingCartPage }) => {
-  await shoppingCartPage.goto();
-  await shoppingCartPage.addItemToCart('iphone12');
+test('add item as admin', async ({ userInShoppingCartPage }) => {
+  await userInShoppingCartPage.goto();
+  await userInShoppingCartPage.addItemToCart('iphone12');
 });
 ```
 
-To run tests **without** login (e.g. login page tests), use `**testNoAuth`\*\*:
+To run tests **without** login (e.g. login page tests), use `testNoAuth`:
 
 ```ts
-import { testNoAuth, expect } from './fixtures';
+import { testNoAuth, expect } from '../fixtures/fixtures';
 
 testNoAuth('shows error for invalid credentials', async ({ loginPage }) => {
   await loginPage.login('bad@example.com', 'wrong');
@@ -247,7 +258,7 @@ testNoAuth('shows error for invalid credentials', async ({ loginPage }) => {
 
 This project uses **ESLint** and **Prettier** for code quality and consistent formatting:
 
-- **ESLint** (`eslint`, `@typescript-eslint/`\*, `eslint-plugin-playwright`) checks for common issues in TypeScript and Playwright tests.
+- **ESLint** (`eslint`, `@typescript-eslint/`, `eslint-plugin-playwright`) checks for common issues in TypeScript and Playwright tests.
 - **Prettier** (`prettier`, `eslint-config-prettier`) handles code formatting.
 
 From the project root, you can run:
@@ -268,13 +279,10 @@ npm run format
 ## Future Improvements
 
 - **API-level validation**: Add API tests (using Playwright’s `request` fixtures or a separate API test runner) to validate responses, schemas, error codes, and edge cases directly at the API layer. This would complement UI tests and make failures easier to localize (API vs UI vs environment).
-
 - **API-based login for non-login tests**: For flows that don’t need to test the login UI itself, introduce fixtures that authenticate via API and inject a logged-in session (cookies / tokens) into the browser before navigating. This makes preconditions much faster and less flaky because they don’t depend on the login form. In this particular app we couldn’t implement this yet because the login page has no backing APIs exposed.
-
 - **Accessibility testing**: Integrate automated accessibility checks (for example with `@axe-core/playwright`) into key flows such as login, shopping cart, shipping details, and order confirmation. Useful checks include:
   - Ensuring all interactive elements have accessible names/labels.
   - Verifying sufficient color contrast for text and buttons.
   - Detecting missing form labels and ARIA attributes.
   - Checking page structure (landmarks, heading levels) and focus order.
-
 - **Visual regression testing**: Add visual snapshot tests (e.g. with `expect(page).toHaveScreenshot()` or a dedicated visual regression tool) for important views like the shopping cart, shipping form, order confirmation, and file upload page. This would catch unintended visual changes (layout shifts, styling regressions, missing elements) that functional assertions alone might not detect.

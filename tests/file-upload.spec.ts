@@ -28,6 +28,7 @@ test.describe('File Upload', () => {
     });
   }
 
+  // This test is failing because there is no file validation on the app
   test('submitting with no file selected shows an error message', async ({
     userInFileUploadPage,
   }) => {
@@ -38,6 +39,7 @@ test.describe('File Upload', () => {
     await expect(fileUploadPage.errorMessage).toBeVisible();
   });
 
+  // This test is failing because there is no file validation on the app
   test('submitting disallowed file types shows an error message', async ({
     userInFileUploadPage,
   }) => {
@@ -53,6 +55,7 @@ test.describe('File Upload', () => {
     await expect(fileUploadPage.errorMessage).toBeVisible();
   });
 
+  // This test is failing because there is no file validation on the app
   test('submitting files over 50MB shows an error message', async ({ userInFileUploadPage }) => {
     const fileUploadPage = new FileUploadPage(userInFileUploadPage.page);
     await fileUploadPage.goto();
@@ -61,6 +64,7 @@ test.describe('File Upload', () => {
     await expect(fileUploadPage.errorMessage).toBeVisible();
   });
 
+  // This test is failing because there is no file validation on the app
   test('submitting a zero-byte or "empty" file shows an error message', async ({
     userInFileUploadPage,
   }) => {

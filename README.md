@@ -262,3 +262,19 @@ npm run lint:fix
 # Format the codebase with Prettier
 npm run format
 ```
+
+---
+
+## Future Improvements
+
+- **API-level validation**: Add API tests (using Playwright’s `request` fixtures or a separate API test runner) to validate responses, schemas, error codes, and edge cases directly at the API layer. This would complement UI tests and make failures easier to localize (API vs UI vs environment).
+
+- **API-based login for non-login tests**: For flows that don’t need to test the login UI itself, introduce fixtures that authenticate via API and inject a logged-in session (cookies / tokens) into the browser before navigating. This makes preconditions much faster and less flaky because they don’t depend on the login form. In this particular app we couldn’t implement this yet because the login page has no backing APIs exposed.
+
+- **Accessibility testing**: Integrate automated accessibility checks (for example with `@axe-core/playwright`) into key flows such as login, shopping cart, shipping details, and order confirmation. Useful checks include:
+  - Ensuring all interactive elements have accessible names/labels.
+  - Verifying sufficient color contrast for text and buttons.
+  - Detecting missing form labels and ARIA attributes.
+  - Checking page structure (landmarks, heading levels) and focus order.
+
+- **Visual regression testing**: Add visual snapshot tests (e.g. with `expect(page).toHaveScreenshot()` or a dedicated visual regression tool) for important views like the shopping cart, shipping form, order confirmation, and file upload page. This would catch unintended visual changes (layout shifts, styling regressions, missing elements) that functional assertions alone might not detect.

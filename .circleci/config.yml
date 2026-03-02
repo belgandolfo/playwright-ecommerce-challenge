@@ -1,56 +1,75 @@
 version: 2.1
 
-jobs:
-  test:
+# Pipeline parameter: set to "dev" when running manually to use dev context; default "qa".
+parameters:
+  environment:
+    type: string
+    default: qa
+    description: 'Environment (qa or dev). Default qa; user can pick dev when running pipeline manually.'
+
+executors:
+  playwright:
     docker:
       - image: mcr.microsoft.com/playwright:v1.58.2-jammy
+    resource_class: medium
     working_directory: ~/project
+jobs:
+  test:
+    parameters:
+      context_name:
+        type: string
+      test_env:
+        type: string
+    executor: playwright
+    parallelism: 2
     environment:
       CI: true
-      TEST_ENV: qa
+      TEST_ENV: << parameters.test_env >>
     steps:
       - checkout
-
       - restore_cache:
           keys:
-            - npm-{{ checksum 'package-lock.json' }}
-
+            - npm-{{ checksum "package-lock.json" }}
       - run:
           name: Install dependencies
           command: npm ci
-
       - save_cache:
-          key: npm-{{ checksum 'package-lock.json' }}
+          key: npm-{{ checksum "package-lock.json" }}
           paths:
             - node_modules
-
       - run:
           name: Install Playwright browsers
           command: npx playwright install --with-deps
-
       - run:
-          name: Run Playwright tests
-          command: npx playwright test
-          env:
-            # These should be set in CircleCI Project Settings for real runs.
-            # Example values (replace with your QA base URL and test users):
-            # BASE_URL: https://qa-practice.netlify.app
-            # ADMIN_EMAIL: admin@admin.com
-            # ADMIN_PASSWORD: admin123
-            # TEST_EMAIL: nonadmin@admin.com
-            # TEST_PASSWORD: nonadmin123
-
+          name: Run Playwright tests (<< parameters.test_env >>)
+          command: npx playwright test --shard=$((CIRCLE_NODE_INDEX+1))/${CIRCLE_NODE_TOTAL}
+      - store_test_results:
+          path: ~/project/test-results
       - store_artifacts:
           when: always
           path: ~/project/playwright-report
           destination: playwright-report
-
       - store_artifacts:
           when: always
           path: ~/project/test-results
           destination: test-results
 
 workflows:
-  test-on-push-and-pr:
+  test-qa:
+    when:
+      not:
+        equal: [<< pipeline.parameters.environment >>, 'dev']
     jobs:
-      - test
+      - test:
+          name: test-qa
+          context_name: qa
+          test_env: qa
+
+  test-dev:
+    when:
+      equal: [<< pipeline.parameters.environment >>, 'dev']
+    jobs:
+      - test:
+          name: test-dev
+          context_name: dev
+          test_env: dev

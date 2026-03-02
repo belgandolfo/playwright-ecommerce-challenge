@@ -162,6 +162,16 @@ This project uses **dotenv** and `TEST_ENV` to switch environments:
 
 The login user is controlled by `TEST_USER` (default: `admin`). The auto fixture `authenticatedUser` (in `fixtures/fixtures.ts`) uses this to log in as admin or nonAdmin. Valid values: `admin`, `nonAdmin` (from `test-data/users.ts`).
 
+There is also a committed `**.env.example`** file that shows how to structure your real env files. In a real project we **never commit actual `.env.`\* files\*\* because they can contain credentials and other sensitive settings.
+
+In this case, copy `.env.example` to `.env.dev` / `.env.qa` locally and fill in the values. The defaults used in this challenge are:
+
+- `BASE_URL=https://qa-practice.netlify.app`
+- `ADMIN_EMAIL=admin@admin.com`
+- `ADMIN_PASSWORD=admin123`
+- `TEST_EMAIL=nonadmin@admin.com`
+- `TEST_PASSWORD=nonadmin123`
+
 For all run commands (by env and user), see [Running Tests](#running-tests).
 
 ---
@@ -218,7 +228,7 @@ This project uses **custom fixtures** in `fixtures/fixtures.ts`. Tests that impo
 - **Clear dependencies** – Each test declares what it uses in its argument list, which makes tests easier to read and refactor.
 - **Reuse and scaling** – New fixtures (e.g. “logged-in user”) can be added once and reused across many tests.
 
-`**authenticatedUser` (auto fixture)\*\*
+`**authenticatedUser` (auto fixture)
 
 This fixture is **automatic**: it runs for every test that uses the default `test` from this file. You get a page signed in as the **current test user** (controlled by `TEST_USER`, default `admin`; credentials from `.env.dev` / `.env.qa`), with login **before** the test and logout **after**, so each test has a fresh session. The page object fixtures (`loginPage`, `shoppingCartPage`, etc.) all use this logged-in page by default.
 

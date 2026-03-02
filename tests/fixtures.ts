@@ -5,6 +5,7 @@ import { LoginPage } from '../pages/LoginPage';
 import { ShoppingCartPage } from '../pages/ShoppingCartPage';
 import { ShippingDetailsPage } from '../pages/ShippingDetailsPage';
 import { OrderConfirmationPage } from '../pages/OrderConfirmationPage';
+import { FileUploadPage } from '../pages/FileUploadPage';
 import { getTestUser } from '../test-data/users';
 import shopItems from '../test-data/shopItems.json';
 import shippingData from '../test-data/shippingData.json';
@@ -19,6 +20,7 @@ type PageFixtures = {
   shoppingCartPage: ShoppingCartPage;
   shippingDetailsPage: ShippingDetailsPage;
   orderConfirmationPage: OrderConfirmationPage;
+  userInFileUploadPage: FileUploadPage;
 };
 
 /**
@@ -80,7 +82,14 @@ export const test = base.extend<PageFixtures>({
     //await shoppingCartPage.goto(); // this is not needed because the urls are the same for all pages
     await expect(shoppingCartPage.shoppingCartHeader).toBeVisible();
     await use(shoppingCartPage);
-  }
+  },
+
+  userInFileUploadPage: async ({ authenticatedUser }, use) => {
+    const fileUploadPage = new FileUploadPage(authenticatedUser);
+    await fileUploadPage.goto();
+    await expect(fileUploadPage.title).toBeVisible();
+    await use(fileUploadPage);
+  },
 });
 
 /**
@@ -90,7 +99,7 @@ export const test = base.extend<PageFixtures>({
 export const testNoAuth = base.extend<PageFixtures>({
   loginPage: async ({ page }, use) => {
     await use(new LoginPage(page));
-  }
+  },
 });
 
 export { expect } from '@playwright/test';

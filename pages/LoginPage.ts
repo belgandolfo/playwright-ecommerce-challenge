@@ -1,6 +1,5 @@
 import type { Locator, Page } from '@playwright/test';
 import { BasePage } from './BasePage';
-import { ShoppingCartPage } from './ShoppingCartPage';
 
 export class LoginPage extends BasePage {
   readonly loginHeader: Locator;

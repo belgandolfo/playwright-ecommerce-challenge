@@ -33,7 +33,7 @@ export class ShoppingCartPage extends BasePage {
    * Would navigate to the shopping cart page if the url changed like in an actual project.
    */
   async goto(): Promise<void> {
-    await this.page.goto('https://qa-practice.netlify.app/shopping_cart.html');
+    await this.page.goto('/shopping_cart.html');
   }
 
   /**

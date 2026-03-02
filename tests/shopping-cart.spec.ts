@@ -1,6 +1,7 @@
 /* eslint-disable playwright/no-standalone-expect */
 import { test, expect } from './fixtures';
 import shopItems from '../test-data/shopItems.json';
+import { ShoppingCartPage } from '../pages/ShoppingCartPage';
 
 function expectedTotal(
   items: Array<{ price: number }>,
@@ -12,15 +13,17 @@ function expectedTotal(
 
 test.describe('Shopping Cart', () => {
   test.describe('Cart empty state', () => {
-    test('empty cart shows the expected state (no rows)', async ({ shoppingCartPage }) => {
+    test('empty cart shows the expected state (no rows)', async ({ userInShoppingCartPage }) => {
+      const shoppingCartPage = new ShoppingCartPage(userInShoppingCartPage.page);
       await expect(shoppingCartPage.cartRows).toHaveCount(0);
     });
   });
 
   test.describe('Adding items', () => {
     test('add one item by key', async ({
-      shoppingCartPage,
+      userInShoppingCartPage,
     }) => {
+      const shoppingCartPage = new ShoppingCartPage(userInShoppingCartPage.page);
       await shoppingCartPage.addItemToCart(shopItems.iphone12);
       await expect(shoppingCartPage.cartRows).toHaveCount(1);
       await expect(shoppingCartPage.cartTotalPrice).toContainText(
@@ -29,8 +32,9 @@ test.describe('Shopping Cart', () => {
     });
 
     test('add several different items by key', async ({
-      shoppingCartPage,
+      userInShoppingCartPage,
     }) => {
+      const shoppingCartPage = new ShoppingCartPage(userInShoppingCartPage.page);
       await shoppingCartPage.addItemToCart(shopItems.iphone12);
       await shoppingCartPage.addItemToCart(shopItems.nokia);
       await shoppingCartPage.addItemToCart(shopItems.samsung);
@@ -40,8 +44,9 @@ test.describe('Shopping Cart', () => {
     });
 
     test('add same item multiple times', async ({
-      shoppingCartPage,
+      userInShoppingCartPage,
     }) => {
+      const shoppingCartPage = new ShoppingCartPage(userInShoppingCartPage.page);
       await shoppingCartPage.addItemToCart(shopItems.iphone12);
       // Accept the native alert in a listener so it's dismissed as soon as it appears
       const dialogHandled = new Promise<void>((resolve, reject) => {
@@ -62,8 +67,9 @@ test.describe('Shopping Cart', () => {
 
   test.describe('Quantity', () => {
     test('update quantity to a valid number', async ({
-      shoppingCartPage,
+      userInShoppingCartPage,
     }) => {
+      const shoppingCartPage = new ShoppingCartPage(userInShoppingCartPage.page);
       await shoppingCartPage.addItemToCart(shopItems.iphone12);
       await shoppingCartPage.updateItemQuantity(shopItems.iphone12, 2);
       await shoppingCartPage.page
@@ -75,7 +81,8 @@ test.describe('Shopping Cart', () => {
       await expect(shoppingCartPage.cartTotalPrice).toContainText(total.toFixed(2));
     });
 
-    test('update quantity to 0', async ({ shoppingCartPage }) => {
+    test('update quantity to 0', async ({ userInShoppingCartPage }) => {
+      const shoppingCartPage = new ShoppingCartPage(userInShoppingCartPage.page);
       await shoppingCartPage.addItemToCart(shopItems.nokia);
       await shoppingCartPage.updateItemQuantity(shopItems.nokia, 0);
       const quantityInput = shoppingCartPage.page
@@ -87,8 +94,9 @@ test.describe('Shopping Cart', () => {
     });
 
     test('invalid quantity (empty, negative, non-numeric)', async ({
-      shoppingCartPage,
+      userInShoppingCartPage,
     }) => {
+      const shoppingCartPage = new ShoppingCartPage(userInShoppingCartPage.page);
       await shoppingCartPage.addItemToCart(shopItems.samsung);
       const row = shoppingCartPage.page
         .locator('.cart-items .cart-row')
@@ -112,8 +120,9 @@ test.describe('Shopping Cart', () => {
 
   test.describe('Removing items', () => {
     test('remove one item', async ({
-      shoppingCartPage,
+      userInShoppingCartPage,
     }) => {
+      const shoppingCartPage = new ShoppingCartPage(userInShoppingCartPage.page);
       await shoppingCartPage.addItemToCart(shopItems.iphone12);
       await shoppingCartPage.addItemToCart(shopItems.nokia);
       await shoppingCartPage.removeItem(shopItems.iphone12);
@@ -124,7 +133,8 @@ test.describe('Shopping Cart', () => {
       );
     });
 
-    test('remove all items', async ({ shoppingCartPage }) => {
+    test('remove all items', async ({ userInShoppingCartPage }) => {
+      const shoppingCartPage = new ShoppingCartPage(userInShoppingCartPage.page);
       await shoppingCartPage.addItemToCart(shopItems.nokia);
       await shoppingCartPage.removeItem(shopItems.nokia);
 
@@ -132,8 +142,9 @@ test.describe('Shopping Cart', () => {
     });
 
     test('remove one of several items', async ({
-      shoppingCartPage,
+      userInShoppingCartPage,
     }) => {
+      const shoppingCartPage = new ShoppingCartPage(userInShoppingCartPage.page);
       await shoppingCartPage.addItemToCart(shopItems.iphone12);
       await shoppingCartPage.addItemToCart(shopItems.huawei);
       await shoppingCartPage.addItemToCart(shopItems.samsung);

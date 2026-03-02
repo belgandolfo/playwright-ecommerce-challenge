@@ -34,7 +34,7 @@ export class ShippingDetailsPage extends BasePage {
    * Would navigate to the shipping details page if the url changed like in an actual project.
    */
   async goto(): Promise<void> {
-    await this.page.goto('https://qa-practice.netlify.app/shipping_details.html');
+    await this.page.goto('/shipping_details.html');
   }
 
   /**

@@ -24,7 +24,7 @@ export class LoginPage extends BasePage {
    * Navigates to the login page.
    */
   async goto(): Promise<void> {
-    await this.page.goto('https://qa-practice.netlify.app/auth_ecommerce.html');
+    await this.page.goto('/auth_ecommerce.html');
   }
 
   /**

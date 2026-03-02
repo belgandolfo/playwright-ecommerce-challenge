@@ -13,6 +13,6 @@ export class OrderConfirmationPage extends BasePage {
    * Would navigate to the order confirmation page if the url changed like in an actual project.
    */
   async goto(): Promise<void> {
-    await this.page.goto('https://qa-practice.netlify.app/order_confirmation.html');
+    await this.page.goto('/order_confirmation.html');
   }
 }

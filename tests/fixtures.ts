@@ -76,19 +76,7 @@ export const test = base.extend<PageFixtures>({
     //await shoppingCartPage.goto(); // this is not needed because the urls are the same for all pages
     await expect(shoppingCartPage.shoppingCartHeader).toBeVisible();
     await use(shoppingCartPage);
-  },
-
-  shoppingCartPage: async ({ page }, use) => {
-    await use(new ShoppingCartPage(page));
-  },
-
-  orderConfirmationPage: async ({ page }, use) => {
-    await use(new OrderConfirmationPage(page));
-  },
-
-  shippingDetailsPage: async ({ page }, use) => {
-    await use(new ShippingDetailsPage(page));
-  },
+  }
 });
 
 /**
@@ -98,11 +86,7 @@ export const test = base.extend<PageFixtures>({
 export const testNoAuth = base.extend<PageFixtures>({
   loginPage: async ({ page }, use) => {
     await use(new LoginPage(page));
-  },
-
-  shoppingCartPage: async ({ page }, use) => {
-    await use(new ShoppingCartPage(page));
-  },
+  }
 });
 
 export { expect } from '@playwright/test';
